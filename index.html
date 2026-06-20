@@ -1,91 +1,170 @@
-const http = require('http');
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            color: #f1c40f;
+            margin-bottom: 5px;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+        }
+        .time {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        th {
+            background-color: #2c3e50;
+            color: #f1c40f;
+            padding: 12px 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #2d2d2d;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .name-col { color: #e0e0e0; }
+        .fiyat { text-align: right; transition: color 0.3s ease; }
+        .fark-col { text-align: right; font-size: 14px; }
+        
+        /* Renkler */
+        .artti { color: #2ecc71; }
+        .dustu { color: #ff4d4d; }
+        .sabit { color: #ffffff; }
+    </style>
+</head>
+<body>
 
-http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write("Kasimpasa Kuyumcusu Akilli Botu Aktif!");
-  res.end();
-}).listen(process.env.PORT || 3000);
+<div class="container">
+    <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
+    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
 
-const firebaseUrl = "https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com";
-const apiUrl = "https://prdprc.saglamoglu.app/api/v1/prices/currentmarketproductprices";
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align: left;">ÜRÜN ADI</th>
+                <th style="text-align: right;">ALIŞ</th>
+                <th style="text-align: right;">SATIŞ</th>
+                <th style="text-align: right;">FARK (11:00)</th>
+            </tr>
+        </thead>
+        <tbody id="fiyatTablosu"></tbody>
+    </table>
+</div>
 
-async function fiyatlariGuncelle() {
-  try {
-    // 1. API'den anlık fiyatı çek
-    const apiYaniti = await fetch(apiUrl);
-    const jsonVeri = await apiYaniti.json();
-    const hasAltinVerisi = jsonVeri.data.find(urun => urun.marketProductId == 1);
-    const hasAlis = Number(hasAltinVerisi.customerBuysAt);
-    const hasSatis = Number(hasAltinVerisi.customerSellsAt);
+<script>
+    const excelSirasi = [
+        { id: "hasaltin", ad: "Has Altın" },
+        { id: "gramaltin", ad: "Gram Altın" },
+        { id: "eskiceyrek", ad: "Eski Çeyrek" },
+        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+        { id: "eskiyarim", ad: "Eski Yarım" },
+        { id: "yeniyarim", ad: "Yeni Yarım" },
+        { id: "eskitam", ad: "Eski Tam" },
+        { id: "yenitam", ad: "Yeni Tam" },
+        { id: "eskiata", ad: "Eski Ata" },
+        { id: "yeniata", ad: "Yeni Ata" },
+        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+    ];
 
-    // 2. Excel'den gelen çarpanları oku
-    const ayarYaniti = await fetch(firebaseUrl + "/ayarlar.json");
-    const carpanlar = await ayarYaniti.json();
-    if (!carpanlar) return;
+    let anlikFiyatHafizasi = {}; 
 
-    // 3. Günlük 11:00 Hafıza Kontrolü
-    const simdi = new Date();
-    let bugunTarih = simdi.toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
-    
-    const acilisYaniti = await fetch(firebaseUrl + "/gunun_acilisi.json");
-    let acilisVerisi = await acilisYaniti.json();
+    function fiyatlariGetir() {
+        fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
+        .then(response => response.json())
+        .then(data => {
+            if(!data || !data.urunler) return;
 
-    // Hafıza hiç yoksa veya dünden kalmaysa, saat 11:00 olana kadar geçici olarak şu anki fiyatı yaz
-    if (!acilisVerisi || acilisVerisi.tarih !== bugunTarih) {
-      acilisVerisi = { satis: hasSatis, tarih: bugunTarih };
-      await fetch(firebaseUrl + "/gunun_acilisi.json", {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acilisVerisi)
-      });
+            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + data.sonGuncelleme;
+            const tbody = document.getElementById('fiyatTablosu');
+            let yeniTabloHTML = ""; 
+
+            excelSirasi.forEach(item => {
+                let urun = data.urunler[item.id];
+                
+                if (urun) {
+                    let alisFiyat = Number(urun.alis);
+                    let satisFiyat = Number(urun.satis);
+                    let farkYuzde = Number(urun.fark || 0);
+
+                    // 1. FARK SÜTUNU FORMATI VE RENGİ
+                    let ok = "- ";
+                    let farkRenk = "sabit";
+                    if (farkYuzde > 0) { ok = "↑ "; farkRenk = "artti"; }
+                    else if (farkYuzde < 0) { ok = "↓ "; farkRenk = "dustu"; }
+                    
+                    let formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                    // 2. ANLIK YANIP SÖNME RENKLERİ
+                    let alisRenk = "sabit";
+                    let satisRenk = "sabit";
+
+                    if (anlikFiyatHafizasi[item.id]) {
+                        let eskiAlis = anlikFiyatHafizasi[item.id].alis;
+                        let eskiSatis = anlikFiyatHafizasi[item.id].satis;
+
+                        if (alisFiyat > eskiAlis) alisRenk = "artti";
+                        else if (alisFiyat < eskiAlis) alisRenk = "dustu";
+                        else alisRenk = anlikFiyatHafizasi[item.id].alisRenk;
+
+                        if (satisFiyat > eskiSatis) satisRenk = "artti";
+                        else if (satisFiyat < eskiSatis) satisRenk = "dustu";
+                        else satisRenk = anlikFiyatHafizasi[item.id].satisRenk;
+                    }
+
+                    anlikFiyatHafizasi[item.id] = {
+                        alis: alisFiyat,
+                        satis: satisFiyat,
+                        alisRenk: alisRenk,
+                        satisRenk: satisRenk
+                    };
+
+                    yeniTabloHTML += `<tr>
+                        <td class="name-col">${item.ad}</td>
+                        <td class="fiyat ${alisRenk}">${alisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="fiyat ${satisRenk}">${satisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="fark-col ${farkRenk}">${formatliFark}</td>
+                    </tr>`;
+                }
+            });
+
+            tbody.innerHTML = yeniTabloHTML;
+        })
+        .catch(error => console.error("Hata:", error));
     }
 
-    // Saat tam 11:00 olduğunda bugünün asıl fiyatını kalıcı olarak kilitle
-    let anlikSaat = simdi.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hour12: false });
-    if (anlikSaat === "11:00") {
-      acilisVerisi = { satis: hasSatis, tarih: bugunTarih };
-      await fetch(firebaseUrl + "/gunun_acilisi.json", {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(acilisVerisi)
-      });
-      console.log("Saat 11:00 fiyatı hafızaya kilitlendi.");
-    }
+    fiyatlariGetir();
+    setInterval(fiyatlariGetir, 3000);
+</script>
 
-    // 4. Yüzde farkı hesapla
-    let baslangicSatis = acilisVerisi.satis;
-    let yuzdeFark = baslangicSatis > 0 ? ((hasSatis - baslangicSatis) / baslangicSatis) * 100 : 0;
-
-    // 5. Ürünleri paketle
-    let urunlerObjesi = {
-      hasaltin: { alis: hasAlis, satis: hasSatis, fark: yuzdeFark }
-    };
-
-    for (const [isim, carpan] of Object.entries(carpanlar)) {
-      urunlerObjesi[isim] = {
-        alis: Number((hasAlis * carpan.alis).toFixed(2)),
-        satis: Number((hasSatis * carpan.satis).toFixed(2)),
-        fark: yuzdeFark
-      };
-    }
-
-    let saatString = simdi.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    let nihaiPaket = { sonGuncelleme: saatString, urunler: urunlerObjesi };
-
-    // 6. Vitrine fırlat
-    await fetch(firebaseUrl + "/fiyatlar.json", {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nihaiPaket)
-    });
-
-    console.log("Fiyatlar ve farklar hesaplanıp vitrine gönderildi: " + saatString);
-
-  } catch (hata) {
-    console.log("Botta hata oluştu:", hata);
-  }
-}
-
-console.log("11:00 Hafızalı Bot Başlatıldı...");
-fiyatlariGuncelle();
-setInterval(fiyatlariGuncelle, 10000);
+</body>
+</html>
