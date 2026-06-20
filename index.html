@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            color: #f1c40f;
+            margin-bottom: 5px;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+        }
+        .time {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        th {
+            background-color: #2c3e50;
+            color: #f1c40f;
+            padding: 12px 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #2d2d2d;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .name-col {
+            color: #e0e0e0;
+        }
+        .buy-col {
+            color: #ff4d4d;
+            text-align: right;
+        }
+        .sell-col {
+            color: #2ecc71;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
+    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align: left;">ÜRÜN ADI</th>
+                <th style="text-align: right;">ALIŞ</th>
+                <th style="text-align: right;">SATIŞ</th>
+            </tr>
+        </thead>
+        <tbody id="fiyatTablosu">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // Excel'deki orijinal satır sırası ve Türkçe isim eşleştirmesi
+    const excelSirasi = [
+        { id: "hasaltin", ad: "Has Altın" },
+        { id: "gramaltin", ad: "Gram Altın" },
+        { id: "eskiceyrek", ad: "Eski Çeyrek" },
+        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+        { id: "eskiyarim", ad: "Eski Yarım" },
+        { id: "yeniyarim", ad: "Yeni Yarım" },
+        { id: "eskitam", ad: "Eski Tam" },
+        { id: "yenitam", ad: "Yeni Tam" },
+        { id: "eskiata", ad: "Eski Ata" },
+        { id: "yeniata", ad: "Yeni Ata" },
+        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+    ];
+
+    function fiyatlariGetir() {
+        fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
+        .then(response => response.json())
+        .then(data => {
+            if(!data || !data.urunler) return;
+
+            // Güncelleme zamanı
+            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + data.sonGuncelleme;
+
+            const tbody = document.getElementById('fiyatTablosu');
+            tbody.innerHTML = ""; 
+
+            // Firebase verisini Excel'deki sıraya göre zorlayarak ekrana basıyoruz
+            excelSirasi.forEach(item => {
+                let urun = data.urunler[item.id];
+                
+                if (urun) {
+                    let row = `<tr>
+                        <td class="name-col">${item.ad}</td>
+                        <td class="buy-col">${Number(urun.alis).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="sell-col">${Number(urun.satis).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                }
+            });
+        })
+        .catch(error => console.error("Hata:", error));
+    }
+
+    fiyatlariGetir();
+    // 3 saniyede bir canlı güncelleme yapmaya devam eder
+    setInterval(fiyatlariGetir, 3000);
+</script>
+
+</body>
+</html>
