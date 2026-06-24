@@ -3,88 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
+    <title>Kasımpaşa Kuyumcusu</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 10px; }
-        .container { max-width: 550px; margin: 0 auto; }
-        h2 { text-align: center; color: #f1c40f; margin-bottom: 5px; font-size: 20px; }
-        .time { text-align: center; color: #888; font-size: 12px; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; background-color: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        th { background-color: #2c3e50; color: #f1c40f; padding: 12px 10px; font-size: 14px; }
-        td { padding: 10px; border-bottom: 1px solid #2d2d2d; font-size: 14px; font-weight: bold; }
-        .fiyat { text-align: right; }
-        /* Hesap Makinesi Stili (Sadece PC için) */
-        @media (min-width: 768px) {
-            .calc-box { background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-            .calc-box input, .calc-box select { padding: 8px; border-radius: 4px; border: none; margin-right: 5px; }
-            #sonuc { font-weight: bold; color: #f1c40f; font-size: 18px; }
-        }
-        @media (max-width: 767px) { .calc-box { display: none; } }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 5px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        h2 { text-align: center; color: #f1c40f; margin-bottom: 5px; font-size: 18px; }
+        .time { text-align: center; color: #888; font-size: 11px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; background-color: #1e1e1e; border-radius: 8px; overflow: hidden; }
+        th { background-color: #2c3e50; color: #f1c40f; padding: 10px 5px; font-size: 13px; text-align: center; }
+        td { padding: 10px 5px; border-bottom: 1px solid #2d2d2d; font-size: 14px; font-weight: 500; text-align: center; }
+        .name-col { text-align: left; color: #ddd; font-weight: bold; }
         .artti { color: #2ecc71; } .dustu { color: #ff4d4d; } .sabit { color: #ffffff; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <div class="calc-box">
-        <input type="number" id="miktar" placeholder="Miktar (gr)" style="width: 80px;">
-        <select id="ayarSec">
-            <option value="gramaltin">Gram Altın</option>
-            <option value="22ayarbilezik">22 Ayar Bilezik</option>
-        </select>
-        <button onclick="hesapla()">Hesapla</button>
-        <span id="sonuc">0.00 TL</span>
-    </div>
-
     <h2>KASIMPAŞA KUYUMCUSU</h2>
-    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
-
+    <div class="time" id="zaman"></div>
     <table>
         <thead><tr><th>ÜRÜN ADI</th><th>ALIŞ</th><th>SATIŞ</th><th>FARK</th></tr></thead>
-        <tbody id="fiyatTablosu"></tbody>
+        <tbody id="tablo"></tbody>
     </table>
 </div>
 
 <script>
-    let sonVeriler = {};
+    // İstediğin SIRA (Bu sıra asla bozulmaz)
+    const sira = ["hasaltin", "gramaltin", "eskiceyrek", "yeniceyrek", "eskiyarim", "yeniyarim", "eskitam", "yenitam", "eskiata", "yeniata", "22ayargram", "22ayarbilezik"];
+    const isimler = { "hasaltin":"HAS ALTIN", "gramaltin":"GRAM ALTIN", "eskiceyrek":"ESKİ ÇEYREK", "yeniceyrek":"YENİ ÇEYREK", "eskiyarim":"ESKİ YARIM", "yeniyarim":"YENİ YARIM", "eskitam":"ESKİ TAM", "yenitam":"YENİ TAM", "eskiata":"ESKİ ATA", "yeniata":"YENİ ATA", "22ayargram":"22 AYAR GRAM", "22ayarbilezik":"22 AYAR BİLEZİK" };
     
-    function hesapla() {
-        let miktar = document.getElementById('miktar').value;
-        let ayar = document.getElementById('ayarSec').value;
-        if(sonVeriler[ayar]) {
-            let tutar = miktar * sonVeriler[ayar].satis;
-            document.getElementById('sonuc').innerText = tutar.toLocaleString('tr-TR', {style: 'currency', currency: 'TRY'});
-        }
-    }
+    let hafiza = {};
 
-    function fiyatlariGetir() {
+    function guncelle() {
         fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-        .then(response => response.json())
-        .then(data => {
-            if(!data || !data.urunler) return;
-            
-            // Tarih ve Saat Ekleme
-            let simdi = new Date();
-            let tarihSaat = simdi.toLocaleDateString('tr-TR') + " " + data.sonGuncelleme;
-            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + tarihSaat;
-
-            sonVeriler = data.urunler;
-            const tbody = document.getElementById('fiyatTablosu');
+        .then(r => r.json()).then(data => {
+            document.getElementById('zaman').innerText = "Son Güncelleme: " + new Date().toLocaleDateString('tr-TR') + " " + data.sonGuncelleme;
+            let tbody = document.getElementById('tablo');
             tbody.innerHTML = "";
 
-            Object.entries(data.urunler).forEach(([id, urun]) => {
+            sira.forEach(id => {
+                let u = data.urunler[id];
+                if (!u) return;
+
+                let alis = Number(u.alis).toFixed(2);
+                let satis = Number(u.satis).toFixed(2);
+                
+                // Renk mantığı
+                let aRenk = hafiza[id] && u.alis > hafiza[id].alis ? 'artti' : (hafiza[id] && u.alis < hafiza[id].alis ? 'dustu' : 'sabit');
+                let sRenk = hafiza[id] && u.satis > hafiza[id].satis ? 'artti' : (hafiza[id] && u.satis < hafiza[id].satis ? 'dustu' : 'sabit');
+                
+                hafiza[id] = {alis: u.alis, satis: u.satis};
+
                 tbody.innerHTML += `<tr>
-                    <td>${id.toUpperCase()}</td>
-                    <td class="fiyat">${urun.alis}</td>
-                    <td class="fiyat">${urun.satis}</td>
-                    <td class="fiyat">${urun.fark > 0 ? '↑' : '↓'} %${Math.abs(urun.fark).toFixed(2)}</td>
+                    <td class="name-col">${isimler[id]}</td>
+                    <td class="${aRenk}">${alis}</td>
+                    <td class="${sRenk}">${satis}</td>
+                    <td class="${u.fark > 0 ? 'artti' : 'dustu'}">${u.fark > 0 ? '↑' : '↓'} %${Math.abs(u.fark).toFixed(2)}</td>
                 </tr>`;
             });
         });
     }
-
-    fiyatlariGetir();
-    setInterval(fiyatlariGetir, 3000);
+    setInterval(guncelle, 3000);
+    guncelle();
 </script>
 </body>
 </html>
