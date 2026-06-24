@@ -1,568 +1,681 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="dark">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
+
     <style>
-        /* iOS Sistem Renkleri ve Değişkenler */
         :root {
-            --bg-color: #f2f2f7;
-            --surface-color: #ffffff;
-            --text-main: #000000;
-            --text-sec: #8e8e93;
-            --border-color: #c6c6c8;
-            --blue: #007aff;
-            --green: #34c759;
-            --red: #ff3b30;
-            --nav-bg: rgba(255, 255, 255, 0.85);
-            --modal-bg: rgba(242, 242, 247, 0.95);
-            --input-bg: #e3e3e8;
-            --list-header-bg: #f2f2f7;
-            --list-header-text: #8e8e93;
+            --bg: #0b0b0f;
+            --bg-soft: #15151c;
+            --card: rgba(28, 28, 35, 0.78);
+            --card-solid: #1c1c23;
+            --text: #f5f5f7;
+            --muted: #9b9ba5;
+            --line: rgba(255,255,255,0.08);
+            --accent: #f5c542;
+            --accent-soft: rgba(245,197,66,0.16);
+            --thead: rgba(255,255,255,0.06);
+            --shadow: 0 18px 55px rgba(0,0,0,0.42);
+            --up: #2ecc71;
+            --down: #ff4d4d;
+            --neutral: #ffffff;
+            --blur: blur(22px);
         }
 
-        [data-theme="dark"] {
-            --bg-color: #000000;
-            --surface-color: #1c1c1e;
-            --text-main: #ffffff;
-            --text-sec: #98989d;
-            --border-color: #38383a;
-            --blue: #0a84ff;
-            --green: #32d74b;
-            --red: #ff453a;
-            --nav-bg: rgba(28, 28, 30, 0.85);
-            --modal-bg: rgba(0, 0, 0, 0.95);
-            --input-bg: #2c2c2e;
-            --list-header-bg: #000000;
-            --list-header-text: #98989d;
+        body[data-theme="ios-light"] {
+            --bg: #f5f5f7;
+            --bg-soft: #ffffff;
+            --card: rgba(255,255,255,0.78);
+            --card-solid: #ffffff;
+            --text: #111113;
+            --muted: #72727a;
+            --line: rgba(0,0,0,0.08);
+            --accent: #b88700;
+            --accent-soft: rgba(184,135,0,0.13);
+            --thead: rgba(0,0,0,0.04);
+            --shadow: 0 18px 55px rgba(0,0,0,0.12);
+            --neutral: #111113;
         }
 
-        [data-theme="classic"] {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-main: #ffffff;
-            --text-sec: #e0e0e0;
-            --border-color: #2d2d2d;
-            --blue: #f1c40f;
-            --green: #2ecc71;
-            --red: #ff4d4d;
-            --nav-bg: rgba(44, 62, 80, 0.95);
-            --modal-bg: rgba(30, 30, 30, 0.98);
-            --input-bg: #2c2c2e;
-            --list-header-bg: #2c3e50;
-            --list-header-text: #f1c40f;
+        body[data-theme="dark-cay"] {
+            --bg: #09130f;
+            --bg-soft: #101f18;
+            --card: rgba(18, 35, 27, 0.82);
+            --card-solid: #12231b;
+            --text: #f3efe4;
+            --muted: #a99f8d;
+            --line: rgba(235,219,185,0.10);
+            --accent: #d6a64f;
+            --accent-soft: rgba(214,166,79,0.16);
+            --thead: rgba(214,166,79,0.10);
+            --shadow: 0 18px 55px rgba(0,0,0,0.45);
+            --neutral: #f3efe4;
+        }
+
+        body[data-theme="classic"] {
+            --bg: #121212;
+            --bg-soft: #1e1e1e;
+            --card: #1e1e1e;
+            --card-solid: #1e1e1e;
+            --text: #ffffff;
+            --muted: #888888;
+            --line: #2d2d2d;
+            --accent: #f1c40f;
+            --accent-soft: rgba(241,196,15,0.14);
+            --thead: #2c3e50;
+            --shadow: 0 4px 10px rgba(0,0,0,0.3);
+            --neutral: #ffffff;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            padding-bottom: 30px;
-        }
-
-        /* Navigasyon Bar */
-        .navbar {
-            position: sticky;
-            top: 0; left: 0; right: 0;
-            height: 50px;
-            background-color: var(--nav-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            border-bottom: 0.5px solid var(--border-color);
-            z-index: 100;
-        }
-
-        .navbar-title {
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: -0.4px;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            color: var(--blue);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-        }
-
-        .menu-btn svg {
-            width: 24px;
-            height: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top left, var(--accent-soft), transparent 34%),
+                linear-gradient(180deg, var(--bg), var(--bg-soft));
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            padding: 14px;
+            transition: background 0.25s ease, color 0.25s ease;
         }
 
         .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 0 16px;
+            max-width: 620px;
+            margin: 0 auto;
+            padding-top: 54px;
         }
 
-        /* Başlık Yapısı */
-        .main-title {
-            text-align: center;
-            color: var(--blue);
-            margin-bottom: 5px;
-            font-size: 20px;
-            letter-spacing: 0.5px;
-            line-height: 1.4;
-            font-weight: 700;
-        }
-        [data-theme="classic"] .main-title {
-            color: #f1c40f;
-        }
-
-        .time-subtitle {
-            text-align: center;
-            color: var(--text-sec);
-            font-size: 12px;
-            margin-bottom: 15px;
-        }
-
-        /* iOS Tablo / Liste Tasarımı */
-        .ios-list {
-            background-color: var(--surface-color);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        [data-theme="classic"] .ios-list {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .list-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 0.8fr;
-            padding: 12px 16px;
-            background-color: var(--list-header-bg);
-            border-bottom: 0.5px solid var(--border-color);
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--list-header-text);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .list-header div:not(:first-child) {
-            text-align: right;
-        }
-
-        .list-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 0.8fr;
-            padding: 14px 16px;
-            border-bottom: 0.5px solid var(--border-color);
-            align-items: center;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .list-row:last-child {
-            border-bottom: none;
-        }
-
-        .list-row div:not(:first-child) {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .item-name {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        [data-theme="classic"] .item-name {
-            color: #e0e0e0;
-        }
-
-        /* Slot Makinesi Hücre Yapısı */
-        .slot-cell {
-            position: relative;
-            overflow: hidden;
-            display: inline-flex;
-            justify-content: flex-end;
-            align-items: center;
-            height: 20px;
-            width: 100%;
-        }
-
-        .slot-wrap {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .slot-item {
-            position: absolute;
-            right: 0;
-            width: 100%;
-        }
-
-        /* Kalıcı Renk Sınıfları */
-        .text-green { color: var(--green) !important; }
-        .text-red { color: var(--red) !important; }
-        .text-default { color: var(--text-main) !important; }
-
-        .fark-badge {
-            display: inline-block;
-            padding: 4px 6px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .bg-green { background-color: var(--green); }
-        .bg-red { background-color: var(--red); }
-        .bg-gray { background-color: var(--text-sec); }
-
-        /* Sol Menü (Popup) */
-        .modal-overlay {
+        .top-bar {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.4);
-            z-index: 999;
-            opacity: 0;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 50;
             pointer-events: none;
-            transition: opacity 0.3s ease;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
+        .menu-wrap {
+            position: relative;
+            width: max-content;
             pointer-events: auto;
         }
 
-        .modal-content {
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 85%;
-            max-width: 350px;
-            background-color: var(--modal-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
+        .menu-button {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            box-shadow: var(--shadow);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
         }
 
-        .modal-overlay.active .modal-content {
-            transform: translateX(0);
+        .menu-lines {
+            width: 18px;
+            display: grid;
+            gap: 4px;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        /* Tema Seçim Satırı */
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 0.5px solid var(--border-color);
-            font-size: 16px;
-        }
-
-        /* Hesap Makinesi Düzenlemeleri */
-        .calc-section {
-            margin-top: 25px;
-            background-color: var(--surface-color);
-            padding: 16px;
-            border-radius: 12px;
-            border: 0.5px solid var(--border-color);
-        }
-
-        .calc-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--blue);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-group label {
+        .menu-lines span {
+            height: 2px;
+            background: var(--text);
+            border-radius: 999px;
             display: block;
-            font-size: 13px;
-            color: var(--text-sec);
-            margin-bottom: 6px;
         }
 
-        .form-control {
+        .popup {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: min(335px, calc(100vw - 24px));
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 14px;
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+            pointer-events: none;
+            transition: 0.18s ease;
+        }
+
+        .popup.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .popup-title {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 6px 2px 10px;
+            font-weight: 700;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .theme-btn {
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            border-radius: 15px;
+            padding: 10px 8px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .theme-btn.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .quick-calc {
+            border-top: 1px solid var(--line);
+            padding-top: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 9px;
+        }
+
+        .form-row.two {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 700;
+            margin-bottom: -3px;
+        }
+
+        select,
+        input {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            font-size: 16px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border-radius: 14px;
+            padding: 11px 12px;
             outline: none;
-            -webkit-appearance: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        body[data-theme="ios-light"] select,
+        body[data-theme="ios-light"] input {
+            background: rgba(0,0,0,0.035);
+        }
+
+        option {
+            color: #111;
+        }
+
+        .calc-result {
+            margin-top: 10px;
+            border-radius: 18px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(245,197,66,0.18);
+            padding: 12px;
+        }
+
+        .calc-result small {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .calc-result strong {
+            display: block;
+            color: var(--accent);
+            font-size: 22px;
+            line-height: 1.2;
+        }
+
+        .brand-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 18px 14px 16px;
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            box-shadow: var(--shadow);
+            margin-bottom: 13px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--accent);
+            margin: 0 0 8px;
+            font-size: 22px;
+            letter-spacing: 0.4px;
+            line-height: 1.24;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .time {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 10px;
+            display: grid;
+            gap: 5px;
+        }
+
+        .date-pill {
+            display: inline-block;
+            width: fit-content;
+            margin: 0 auto;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--line);
+        }
+
+        .table-card {
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--line);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--thead);
+            color: var(--accent);
+            padding: 13px 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--line);
+            font-size: 15px;
+            font-weight: 850;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .name-col {
+            color: var(--text);
+            max-width: 130px;
+        }
+
+        .fiyat {
+            text-align: right;
+            transition: color 0.25s ease, transform 0.25s ease;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .fiyat.slot-spin {
+            transform: translateY(-1px);
+            filter: brightness(1.18);
+        }
+
+        .fark-col {
+            text-align: right;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .artti {
+            color: var(--up);
+        }
+
+        .dustu {
+            color: var(--down);
+        }
+
+        .sabit {
+            color: var(--neutral);
+        }
+
+        .status-line {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 430px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding-top: 52px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            th {
+                font-size: 11px;
+                padding: 12px 7px;
+            }
+
+            td {
+                font-size: 14px;
+                padding: 13px 7px;
+            }
+
+            .name-col {
+                max-width: 108px;
+            }
+
+            .fark-col {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
-<body>
 
-    <div class="navbar">
-        <button class="menu-btn" onclick="window.toggleMenu()">
-            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
+<body data-theme="ios-dark">
+
+<div class="top-bar">
+    <div class="menu-wrap">
+        <button class="menu-button" id="menuButton" aria-label="Menü">
+            <span class="menu-lines">
+                <span></span>
+                <span></span>
+                <span></span>
+            </span>
         </button>
-        <div class="navbar-title">Canlı Piyasalar</div>
-        <div style="width: 24px;"></div>
-    </div>
 
-    <div class="container">
-        <h2 class="main-title">KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
-        <div class="time-subtitle" id="guncellemeZamani">Yükleniyor...</div>
+        <div class="popup" id="menuPopup">
+            <div class="popup-title">Tema</div>
 
-        <div class="ios-list">
-            <div class="list-header">
-                <div>Ürün Adı</div>
-                <div>Alış</div>
-                <div>Satış</div>
-                <div>Fark</div>
-            </div>
-            <div id="fiyatTablosu">
-                </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="menuModal" onclick="window.closeMenu(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title">Menü</div>
-                <button class="menu-btn" onclick="window.toggleMenu()">
-                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+            <div class="theme-grid">
+                <button class="theme-btn active" data-theme-set="ios-dark">Dark</button>
+                <button class="theme-btn" data-theme-set="ios-light">Day</button>
+                <button class="theme-btn" data-theme-set="dark-cay">Dark Çay</button>
+                <button class="theme-btn" data-theme-set="classic">Klasik</button>
             </div>
 
-            <div class="setting-row">
-                <span>Renk Paketi</span>
-                <select class="form-control" id="themeSelect" onchange="window.changeTheme()" style="width: auto; padding: 6px 12px; font-size: 14px;">
-                    <option value="dark">Karanlık</option>
-                    <option value="light">Aydınlık</option>
-                    <option value="classic">Klasik</option>
-                </select>
-            </div>
+            <div class="quick-calc">
+                <div class="popup-title">Hızlı Hesap</div>
 
-            <div class="calc-section">
-                <div class="calc-title">Hızlı Hesaplama</div>
-                
-                <div class="form-group">
-                    <label>Altın Seçin</label>
-                    <select class="form-control" id="calcUrun" onchange="window.hesaplaYeniden()"></select>
+                <div class="form-row">
+                    <label>Ürün</label>
+                    <select id="calcUrun"></select>
                 </div>
 
-                <div class="form-group">
-                    <label>Fiyat Tipi</label>
-                    <select class="form-control" id="calcTip" onchange="window.hesaplaYeniden()">
-                        <option value="alis">Alış Fiyatı</option>
-                        <option value="satis">Satış Fiyatı</option>
-                    </select>
+                <div class="form-row two">
+                    <div>
+                        <label>Fiyat Tipi</label>
+                        <select id="calcTip">
+                            <option value="alis">Alış</option>
+                            <option value="satis">Satış</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>İşlem</label>
+                        <select id="calcIslem">
+                            <option value="carp">Fiyat × Sayı</option>
+                            <option value="bol">Fiyat ÷ Sayı</option>
+                            <option value="sayiBolFiyat">Sayı ÷ Fiyat</option>
+                            <option value="topla">Fiyat + Sayı</option>
+                            <option value="cikar">Fiyat - Sayı</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Altın Miktarı (Adet/Gram)</label>
-                    <input type="number" step="any" class="form-control" id="calcMiktar" placeholder="Miktar yazın..." oninput="window.hesapla('miktar')">
+                <div class="form-row">
+                    <label>Sayı / Gram / Tutar</label>
+                    <input id="calcSayi" type="number" inputmode="decimal" placeholder="Örn: 10" step="0.01">
                 </div>
 
-                <div class="form-group">
-                    <label>Toplam Fiyat (TL)</label>
-                    <input type="number" step="any" class="form-control" id="calcTutar" placeholder="Fiyat yazın..." oninput="window.hesapla('tutar')">
+                <div class="calc-result">
+                    <small id="calcBase">Seçili fiyat: -</small>
+                    <strong id="calcSonuc">-</strong>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="container">
+    <div class="brand-card">
+        <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
+        <div class="subtitle">Anlık alış ve satış ekranı</div>
+        <div class="time" id="guncellemeZamani">Yükleniyor...</div>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: left;">ÜRÜN ADI</th>
+                    <th style="text-align: right;">ALIŞ</th>
+                    <th style="text-align: right;">SATIŞ</th>
+                    <th style="text-align: right;">FARK</th>
+                </tr>
+            </thead>
+            <tbody id="fiyatTablosu"></tbody>
+        </table>
+    </div>
+
+    <div class="status-line" id="durumYazisi">Fiyatlar 3 saniyede bir kontrol edilir.</div>
+</div>
 
 <script>
-    // Tüm script kodunu sayfa tam yüklendiğinde çalışacak şekilde sarmalıyoruz
-    document.addEventListener("DOMContentLoaded", function() {
+    const excelSirasi = [
+        { id: "hasaltin", ad: "Has Altın" },
+        { id: "gramaltin", ad: "Gram Altın" },
+        { id: "eskiceyrek", ad: "Eski Çeyrek" },
+        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+        { id: "eskiyarim", ad: "Eski Yarım" },
+        { id: "yeniyarim", ad: "Yeni Yarım" },
+        { id: "eskitam", ad: "Eski Tam" },
+        { id: "yenitam", ad: "Yeni Tam" },
+        { id: "eskiata", ad: "Eski Ata" },
+        { id: "yeniata", ad: "Yeni Ata" },
+        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+    ];
 
-        const excelSirasi = [
-            { id: "hasaltin", ad: "Has Altın" },
-            { id: "gramaltin", ad: "Gram Altın" },
-            { id: "eskiceyrek", ad: "Eski Çeyrek" },
-            { id: "yeniceyrek", ad: "Yeni Çeyrek" },
-            { id: "eskiyarim", ad: "Eski Yarım" },
-            { id: "yeniyarim", ad: "Yeni Yarım" },
-            { id: "eskitam", ad: "Eski Tam" },
-            { id: "yenitam", ad: "Yeni Tam" },
-            { id: "eskiata", ad: "Eski Ata" },
-            { id: "yeniata", ad: "Yeni Ata" },
-            { id: "22ayargram", ad: "22 Ayar Gram" },
-            { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
-        ];
+    let anlikFiyatHafizasi = {};
+    let fiyatCache = {};
+    let ilkYukleme = true;
 
-        let anlikFiyatHafizasi = {};
-        let isFirstLoad = true;
-        let lastEditedField = 'miktar';
-        window.latestUrunler = null;
+    const tbody = document.getElementById("fiyatTablosu");
+    const guncellemeZamani = document.getElementById("guncellemeZamani");
+    const durumYazisi = document.getElementById("durumYazisi");
 
-        // HTML elemanlarının düzgün yüklendiğinden emin oluyoruz
-        const calcUrunSelect = document.getElementById('calcUrun');
-        if (calcUrunSelect) {
-            excelSirasi.forEach(item => {
-                let opt = document.createElement('option');
-                opt.value = item.id;
-                opt.innerText = item.ad;
-                calcUrunSelect.appendChild(opt);
-            });
+    const menuButton = document.getElementById("menuButton");
+    const menuPopup = document.getElementById("menuPopup");
+
+    const calcUrun = document.getElementById("calcUrun");
+    const calcTip = document.getElementById("calcTip");
+    const calcIslem = document.getElementById("calcIslem");
+    const calcSayi = document.getElementById("calcSayi");
+    const calcBase = document.getElementById("calcBase");
+    const calcSonuc = document.getElementById("calcSonuc");
+
+    function paraFormatla(deger) {
+        const sayi = Number(deger || 0);
+
+        return sayi.toLocaleString("tr-TR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function tarihFormatla() {
+        return new Date().toLocaleString("tr-TR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+    }
+
+    function guvenliSayi(deger) {
+        const sayi = Number(deger);
+        return Number.isFinite(sayi) ? sayi : 0;
+    }
+
+    function tabloSatirlariniKur() {
+        tbody.innerHTML = excelSirasi.map(item => `
+            <tr>
+                <td class="name-col">${item.ad}</td>
+                <td class="fiyat sabit" id="${item.id}-alis">-</td>
+                <td class="fiyat sabit" id="${item.id}-satis">-</td>
+                <td class="fark-col sabit" id="${item.id}-fark">-</td>
+            </tr>
+        `).join("");
+    }
+
+    function hesapUrunleriniKur() {
+        calcUrun.innerHTML = excelSirasi.map(item => `
+            <option value="${item.id}">${item.ad}</option>
+        `).join("");
+    }
+
+    function fiyatRengiBelirle(yeniFiyat, eskiFiyat, eskiRenk) {
+        if (yeniFiyat > eskiFiyat) return "artti";
+        if (yeniFiyat < eskiFiyat) return "dustu";
+        return eskiRenk || "sabit";
+    }
+
+    function fiyatHucresiGuncelle(element, yeniFiyat, renkClass, animasyonYap) {
+        element.classList.remove("artti", "dustu", "sabit");
+        element.classList.add(renkClass);
+
+        if (!animasyonYap) {
+            element.textContent = paraFormatla(yeniFiyat);
+            return;
         }
 
-        // --- GLOBAL FONKSİYONLAR ---
-        // Bu yapı, fonksiyonların dışarıdan tıklamalara yanıt vermesini garanti eder
-        window.toggleMenu = function() {
-            const menuModal = document.getElementById('menuModal');
-            if(menuModal) menuModal.classList.toggle('active');
-        };
+        element.classList.add("slot-spin");
 
-        window.closeMenu = function(e) {
-            const menuModal = document.getElementById('menuModal');
-            if(menuModal && e.target === menuModal) window.toggleMenu();
-        };
+        const finalText = paraFormatla(yeniFiyat);
+        const baslangic = performance.now();
+        const sure = 620;
 
-        window.changeTheme = function() {
-            const themeSelect = document.getElementById('themeSelect');
-            if(themeSelect) {
-                document.documentElement.setAttribute('data-theme', themeSelect.value);
+        function animasyon(now) {
+            const ilerleme = Math.min((now - baslangic) / sure, 1);
+
+            if (ilerleme < 1) {
+                const oynayanSayi = yeniFiyat + ((Math.random() - 0.5) * yeniFiyat * 0.018);
+                element.textContent = paraFormatla(oynayanSayi);
+                requestAnimationFrame(animasyon);
+            } else {
+                element.textContent = finalText;
+                element.classList.remove("slot-spin");
             }
-        };
-
-        function formatFiyat(deger) {
-            return Number(deger).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
 
-        // Yavaşlatılmış ve Renkleri Kalıcı Bırakan Slot Animasyonu
-        window.triggerSlotAnimation = function(elementId, eskiDegerStr, yeniDegerStr, isIncrease) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
+        requestAnimationFrame(animasyon);
+    }
 
-            el.innerHTML = '';
-            const wrap = document.createElement('div');
-            const colorClass = isIncrease ? 'text-green' : 'text-red';
-            wrap.className = 'slot-wrap ' + colorClass;
-
-            const oldDiv = document.createElement('div');
-            oldDiv.className = 'slot-item';
-            oldDiv.innerText = eskiDegerStr;
-
-            const newDiv = document.createElement('div');
-            newDiv.className = 'slot-item';
-            newDiv.innerText = yeniDegerStr;
-
-            oldDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
-            newDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
-
-            newDiv.style.transform = isIncrease ? 'translateY(100%)' : 'translateY(-100%)';
-            oldDiv.style.transform = 'translateY(0)';
-            newDiv.style.opacity = '0';
-
-            wrap.appendChild(oldDiv);
-            wrap.appendChild(newDiv);
-            el.appendChild(wrap);
-
-            void wrap.offsetWidth; // Tarayıcıyı zorla yenile
-
-            newDiv.style.transform = 'translateY(0)';
-            newDiv.style.opacity = '1';
-            oldDiv.style.transform = isIncrease ? 'translateY(-100%)' : 'translateY(100%)';
-            oldDiv.style.opacity = '0';
-
-            // Renk kalıcı olarak kalır
-            setTimeout(() => {
-                el.innerHTML = `<div class="slot-wrap ${colorClass}"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${yeniDegerStr}</div></div>`;
-            }, 850);
-        };
-
-        // --- ANA VERİ ÇEKME İŞLEMİ ---
-        function fiyatlariGetir() {
-            fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-            .then(response => {
-                if(!response.ok) throw new Error("Ağ Yanıtı Hatalı");
-                return response.json();
-            })
+    function fiyatlariGetir() {
+        fetch("https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json")
+            .then(response => response.json())
             .then(data => {
-                if(!data || !data.urunler) return;
-
-                const bugun = new Date();
-                const gun = String(bugun.getDate()).padStart(2, '0');
-                const ay = String(bugun.getMonth() + 1).padStart(2, '0');
-                const yil = bugun.getFullYear();
-                
-                const guncellemeDiv = document.getElementById('guncellemeZamani');
-                if(guncellemeDiv) {
-                    guncellemeDiv.innerText = "Son Güncelleme: " + `${gun}.${ay}.${yil} ` + (data.sonGuncelleme || "");
+                if (!data || !data.urunler) {
+                    durumYazisi.textContent = "Veri alınamadı.";
+                    return;
                 }
-                
-                window.latestUrunler = data.urunler;
-                const tbody = document.getElementById('fiyatTablosu');
-                if(!tbody) return;
 
-                if (isFirstLoad) {
-                    let initialHTML = "";
-                    excelSirasi.forEach(item => {
-                        let urun = data.urunler[item.id];
-                        if (urun) {
-                            let alisFiyat = Number(urun.alis);
-                            let satisFiyat = Number(urun.satis);
-                            let farkYuzde = Number(urun.fark || 0);
+                const cihazTarihi = tarihFormatla();
+                const kaynakGuncelleme = data.sonGuncelleme || "-";
 
-                            let farkSembol = "-";
-                            let farkClass = "bg-gray";
-                            if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
-                            else if (farkYuzde < 0) { farkSembol = ""; farkClass = "bg-red"; }
+                guncellemeZamani.innerHTML = `
+                    <span>Son Güncelleme: ${kaynakGuncelleme}</span>
+                    <span class="date-pill">Tarih: ${cihazTarihi}</span>
+                `;
 
-                            anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat, alisRenk: 'text-default', satisRenk: 'text-default' };
+                excelSirasi.forEach(item => {
+                    const urun = data.urunler[item.id];
 
-                            initialHTML += `
-                                <div class="list-row">
-                                    <div class="item-name">${item.ad}</div>
-                                    <div><div class="slot-cell" id="${item.id}-alis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(alisFiyat)}</div></div></div></div>
-                                    <div><div class="slot-cell" id="${item.id}-satis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(satisFiyat)}</div></div></div></div>
-                                    <div><span class="fark-badge ${farkClass}" id="${item.id}-fark">${farkSembol}%${Math.abs(farkYuzde).toFixed(2)}</span></div>
-                                </div>
-                            `;
-                        }
+                    if (!urun) return;
+
+                    const alisFiyat = guvenliSayi(urun.alis);
+                    const satisFiyat = guvenliSayi(urun.satis);
+                    const farkYuzde = guvenliSayi(urun.fark || 0);
+
+                    fiyatCache[item.id] = {
+                        ad: item.ad,
+                        alis: alisFiyat,
+                        satis: satisFiyat
+                    };
+
+                    let ok = "- ";
+                    let farkRenk = "sabit";
+
+                    if (farkYuzde > 0) {
+                        ok = "↑ ";
+                        farkRenk = "artti";
+                    } else if (farkYuzde < 0) {
+                        ok = "↓ ";
+                        farkRenk = "dustu";
+                    }
+
+                    const formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString("tr-TR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
                     });
-                    tbody.innerHTML = initialHTML;
-                    isFirstLoad = false;
-                } else {
-                    excelSirasi.forEach(item => {
-                        let urun = data
+
+                    let alisRenk = "sabit";
+                    let satisRenk = "sabit";
+
+                    if (anlikFiyatHafizasi[item.id]) {
+                        const eski = anlikFiyatHafizasi[item.id];
+
+                        alisRenk = fiyatRengiBelirle(alisFiyat, eski.alis, eski.alisRenk);
+                        
