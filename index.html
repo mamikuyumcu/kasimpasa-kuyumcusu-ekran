@@ -3,67 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasımpaşa Kuyumcusu</title>
+    <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 0; padding: 5px; }
-        .container { max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; color: #f1c40f; margin-bottom: 5px; font-size: 18px; }
-        .time { text-align: center; color: #888; font-size: 11px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; background-color: #1e1e1e; border-radius: 8px; overflow: hidden; }
-        th { background-color: #2c3e50; color: #f1c40f; padding: 10px 5px; font-size: 13px; text-align: center; }
-        td { padding: 10px 5px; border-bottom: 1px solid #2d2d2d; font-size: 14px; font-weight: 500; text-align: center; }
-        .name-col { text-align: left; color: #ddd; font-weight: bold; }
-        .artti { color: #2ecc71; } .dustu { color: #ff4d4d; } .sabit { color: #ffffff; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+        }
+        .container {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        h2 {
+            text-align: center;
+            color: #f1c40f;
+            margin-bottom: 5px;
+            font-size: 20px;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+        }
+        .time {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        th {
+            background-color: #2c3e50;
+            color: #f1c40f;
+            padding: 12px 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #2d2d2d;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .name-col { color: #e0e0e0; }
+        .fiyat { text-align: right; transition: color 0.3s ease; }
+        .fark-col { text-align: right; font-size: 14px; }
+        /* Renkler */
+        .artti { color: #2ecc71; }
+        .dustu { color: #ff4d4d; }
+        .sabit { color: #ffffff; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>KASIMPAŞA KUYUMCUSU</h2>
-    <div class="time" id="zaman"></div>
+    <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
+    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
     <table>
-        <thead><tr><th>ÜRÜN ADI</th><th>ALIŞ</th><th>SATIŞ</th><th>FARK</th></tr></thead>
-        <tbody id="tablo"></tbody>
+        <thead>
+            <tr>
+                <th style="text-align: left;">ÜRÜN ADI</th>
+                <th style="text-align: right;">ALIŞ</th>
+                <th style="text-align: right;">SATIŞ</th>
+                <th style="text-align: right;">FARK</th>
+            </tr>
+        </thead>
+        <tbody id="fiyatTablosu"></tbody>
     </table>
 </div>
-
 <script>
-    // İstediğin SIRA (Bu sıra asla bozulmaz)
-    const sira = ["hasaltin", "gramaltin", "eskiceyrek", "yeniceyrek", "eskiyarim", "yeniyarim", "eskitam", "yenitam", "eskiata", "yeniata", "22ayargram", "22ayarbilezik"];
-    const isimler = { "hasaltin":"HAS ALTIN", "gramaltin":"GRAM ALTIN", "eskiceyrek":"ESKİ ÇEYREK", "yeniceyrek":"YENİ ÇEYREK", "eskiyarim":"ESKİ YARIM", "yeniyarim":"YENİ YARIM", "eskitam":"ESKİ TAM", "yenitam":"YENİ TAM", "eskiata":"ESKİ ATA", "yeniata":"YENİ ATA", "22ayargram":"22 AYAR GRAM", "22ayarbilezik":"22 AYAR BİLEZİK" };
-    
-    let hafiza = {};
-
-    function guncelle() {
+    const excelSirasi = [
+        { id: "hasaltin", ad: "Has Altın" },
+        { id: "gramaltin", ad: "Gram Altın" },
+        { id: "eskiceyrek", ad: "Eski Çeyrek" },
+        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+        { id: "eskiyarim", ad: "Eski Yarım" },
+        { id: "yeniyarim", ad: "Yeni Yarım" },
+        { id: "eskitam", ad: "Eski Tam" },
+        { id: "yenitam", ad: "Yeni Tam" },
+        { id: "eskiata", ad: "Eski Ata" },
+        { id: "yeniata", ad: "Yeni Ata" },
+        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+    ];
+    let anlikFiyatHafizasi = {}; 
+    function fiyatlariGetir() {
         fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-        .then(r => r.json()).then(data => {
-            document.getElementById('zaman').innerText = "Son Güncelleme: " + new Date().toLocaleDateString('tr-TR') + " " + data.sonGuncelleme;
-            let tbody = document.getElementById('tablo');
-            tbody.innerHTML = "";
-
-            sira.forEach(id => {
-                let u = data.urunler[id];
-                if (!u) return;
-
-                let alis = Number(u.alis).toFixed(2);
-                let satis = Number(u.satis).toFixed(2);
-                
-                // Renk mantığı
-                let aRenk = hafiza[id] && u.alis > hafiza[id].alis ? 'artti' : (hafiza[id] && u.alis < hafiza[id].alis ? 'dustu' : 'sabit');
-                let sRenk = hafiza[id] && u.satis > hafiza[id].satis ? 'artti' : (hafiza[id] && u.satis < hafiza[id].satis ? 'dustu' : 'sabit');
-                
-                hafiza[id] = {alis: u.alis, satis: u.satis};
-
-                tbody.innerHTML += `<tr>
-                    <td class="name-col">${isimler[id]}</td>
-                    <td class="${aRenk}">${alis}</td>
-                    <td class="${sRenk}">${satis}</td>
-                    <td class="${u.fark > 0 ? 'artti' : 'dustu'}">${u.fark > 0 ? '↑' : '↓'} %${Math.abs(u.fark).toFixed(2)}</td>
-                </tr>`;
+        .then(response => response.json())
+        .then(data => {
+            if(!data || !data.urunler) return;
+            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + data.sonGuncelleme;
+            const tbody = document.getElementById('fiyatTablosu');
+            let yeniTabloHTML = ""; 
+            excelSirasi.forEach(item => {
+                let urun = data.urunler[item.id];
+                if (urun) {
+                    let alisFiyat = Number(urun.alis);
+                    let satisFiyat = Number(urun.satis);
+                    let farkYuzde = Number(urun.fark || 0);
+                    // 1. FARK SÜTUNU FORMATI VE RENGİ
+                    let ok = "- ";
+                    let farkRenk = "sabit";
+                    if (farkYuzde > 0) { ok = "↑ "; farkRenk = "artti"; }
+                    else if (farkYuzde < 0) { ok = "↓ "; farkRenk = "dustu"; }
+                    let formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    // 2. ANLIK YANIP SÖNME RENKLERİ
+                    let alisRenk = "sabit";
+                    let satisRenk = "sabit";
+                    if (anlikFiyatHafizasi[item.id]) {
+                        let eskiAlis = anlikFiyatHafizasi[item.id].alis;
+                        let eskiSatis = anlikFiyatHafizasi[item.id].satis;
+                        if (alisFiyat > eskiAlis) alisRenk = "artti";
+                        else if (alisFiyat < eskiAlis) alisRenk = "dustu";
+                        else alisRenk = anlikFiyatHafizasi[item.id].alisRenk;
+                        if (satisFiyat > eskiSatis) satisRenk = "artti";
+                        else if (satisFiyat < eskiSatis) satisRenk = "dustu";
+                        else satisRenk = anlikFiyatHafizasi[item.id].satisRenk;
+                    }
+                    anlikFiyatHafizasi[item.id] = {
+                        alis: alisFiyat,
+                        satis: satisFiyat,
+                        alisRenk: alisRenk,
+                        satisRenk: satisRenk
+                    };
+                    yeniTabloHTML += `<tr>
+                        <td class="name-col">${item.ad}</td>
+                        <td class="fiyat ${alisRenk}">${alisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="fiyat ${satisRenk}">${satisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="fark-col ${farkRenk}">${formatliFark}</td>
+                    </tr>`;
+                }
             });
-        });
+            tbody.innerHTML = yeniTabloHTML;
+        })
+        .catch(error => console.error("Hata:", error));
     }
-    setInterval(guncelle, 3000);
-    guncelle();
+    fiyatlariGetir();
+    setInterval(fiyatlariGetir, 3000);
 </script>
 </body>
 </html>
