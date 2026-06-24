@@ -54,16 +54,199 @@
         .name-col { color: #e0e0e0; }
         .fiyat { text-align: right; transition: color 0.3s ease; }
         .fark-col { text-align: right; font-size: 14px; }
-        /* Renkler */
+
         .artti { color: #2ecc71; }
         .dustu { color: #ff4d4d; }
         .sabit { color: #ffffff; }
+
+        /* ── Hesap Makinesi: sadece PC (≥768px) ── */
+        .hesap-makinesi {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hesap-makinesi {
+                display: block;
+                margin-top: 20px;
+                background-color: #1e1e1e;
+                border-radius: 10px;
+                padding: 18px 20px 20px;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+                border: 1px solid #2d2d2d;
+            }
+        }
+
+        .hesap-baslik {
+            color: #f1c40f;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .hesap-baslik::before {
+            content: "⚡";
+            font-size: 14px;
+        }
+
+        /* Hızlı seçim butonları */
+        .hizli-secim {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .hizli-btn {
+            flex: 1;
+            min-width: 100px;
+            background-color: #2c3e50;
+            color: #f1c40f;
+            border: 1px solid #f1c40f33;
+            border-radius: 6px;
+            padding: 8px 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+        .hizli-btn:hover {
+            background-color: #34495e;
+            transform: translateY(-1px);
+        }
+        .hizli-btn.aktif {
+            background-color: #f1c40f;
+            color: #121212;
+            border-color: #f1c40f;
+        }
+        .hizli-btn .btn-fiyat {
+            display: block;
+            font-size: 10px;
+            font-weight: 400;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        /* Giriş alanları */
+        .hesap-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .hesap-input-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .hesap-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .hesap-input {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 9px 12px;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .hesap-input:focus {
+            border-color: #f1c40f;
+        }
+        .hesap-input::placeholder {
+            color: #555;
+            font-weight: 400;
+        }
+
+        /* İşlem butonları */
+        .islem-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .islem-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .islem-btn:hover {
+            transform: translateY(-1px);
+        }
+        .islem-btn.carpim {
+            background-color: #27ae60;
+            color: #fff;
+        }
+        .islem-btn.carpim:hover { background-color: #2ecc71; }
+        .islem-btn.bolum {
+            background-color: #2980b9;
+            color: #fff;
+        }
+        .islem-btn.bolum:hover { background-color: #3498db; }
+        .islem-btn.temizle {
+            background-color: #333;
+            color: #aaa;
+            font-size: 13px;
+        }
+        .islem-btn.temizle:hover { background-color: #444; color: #fff; }
+
+        /* Sonuç */
+        .sonuc-kutu {
+            background-color: #141414;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-height: 54px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .sonuc-etiket {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+        .sonuc-deger {
+            font-size: 22px;
+            font-weight: 900;
+            color: #f1c40f;
+        }
+        .sonuc-aciklama {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .sonuc-bos {
+            font-size: 14px;
+            color: #444;
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
     <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
     <div class="time" id="guncellemeZamani">Yükleniyor...</div>
+
     <table>
         <thead>
             <tr>
@@ -75,76 +258,238 @@
         </thead>
         <tbody id="fiyatTablosu"></tbody>
     </table>
+
+    <!-- HESAP MAKİNESİ — sadece PC'de görünür -->
+    <div class="hesap-makinesi">
+        <div class="hesap-baslik">Hızlı Hesap Makinesi</div>
+
+        <!-- Hızlı Seçim -->
+        <div class="hizli-secim">
+            <button class="hizli-btn" onclick="hizliSec('gramaltin', 'Gram Altın', this)">
+                Gram Altın
+                <span class="btn-fiyat" id="btn-fiyat-gram">—</span>
+            </button>
+            <button class="hizli-btn" onclick="hizliSec('hasaltin', 'Has Altın', this)">
+                Has Altın
+                <span class="btn-fiyat" id="btn-fiyat-has">—</span>
+            </button>
+            <button class="hizli-btn" onclick="hizliSec('22ayargram', '22 Ayar Gram', this)">
+                22 Ayar
+                <span class="btn-fiyat" id="btn-fiyat-22ayar">—</span>
+            </button>
+        </div>
+
+        <!-- Giriş Alanları -->
+        <div class="hesap-row">
+            <div class="hesap-input-wrap">
+                <span class="hesap-label">Birim Fiyat (₺)</span>
+                <input class="hesap-input" id="inputFiyat" type="number" placeholder="Fiyat girin..." oninput="sonucTemizle()">
+            </div>
+            <div style="color:#555; font-size:20px; padding-top:18px;">×÷</div>
+            <div class="hesap-input-wrap">
+                <span class="hesap-label" id="label-deger">Miktar / Tutar</span>
+                <input class="hesap-input" id="inputDeger" type="number" placeholder="Değer girin..." oninput="sonucTemizle()">
+            </div>
+        </div>
+
+        <!-- İşlem Butonları -->
+        <div class="islem-row">
+            <button class="islem-btn carpim" onclick="hesapla('carpim')" title="Fiyat × Gram = Toplam TL">
+                × Çarp
+            </button>
+            <button class="islem-btn bolum" onclick="hesapla('bolum')" title="Tutar ÷ Fiyat = Gram">
+                ÷ Böl
+            </button>
+            <button class="islem-btn temizle" onclick="temizle()">✕ Temizle</button>
+        </div>
+
+        <!-- Sonuç -->
+        <div class="sonuc-kutu">
+            <div class="sonuc-etiket">Sonuç</div>
+            <div class="sonuc-deger" id="sonucDeger">
+                <span class="sonuc-bos">— hesaplamak için işlem seçin —</span>
+            </div>
+            <div class="sonuc-aciklama" id="sonucAciklama"></div>
+        </div>
+    </div>
 </div>
+
 <script>
     const excelSirasi = [
-        { id: "hasaltin", ad: "Has Altın" },
-        { id: "gramaltin", ad: "Gram Altın" },
-        { id: "eskiceyrek", ad: "Eski Çeyrek" },
-        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
-        { id: "eskiyarim", ad: "Eski Yarım" },
-        { id: "yeniyarim", ad: "Yeni Yarım" },
-        { id: "eskitam", ad: "Eski Tam" },
-        { id: "yenitam", ad: "Yeni Tam" },
-        { id: "eskiata", ad: "Eski Ata" },
-        { id: "yeniata", ad: "Yeni Ata" },
-        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "hasaltin",      ad: "Has Altın" },
+        { id: "gramaltin",     ad: "Gram Altın" },
+        { id: "eskiceyrek",    ad: "Eski Çeyrek" },
+        { id: "yeniceyrek",    ad: "Yeni Çeyrek" },
+        { id: "eskiyarim",     ad: "Eski Yarım" },
+        { id: "yeniyarim",     ad: "Yeni Yarım" },
+        { id: "eskitam",       ad: "Eski Tam" },
+        { id: "yenitam",       ad: "Yeni Tam" },
+        { id: "eskiata",       ad: "Eski Ata" },
+        { id: "yeniata",       ad: "Yeni Ata" },
+        { id: "22ayargram",    ad: "22 Ayar Gram" },
         { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
     ];
-    let anlikFiyatHafizasi = {}; 
+
+    let anlikFiyatHafizasi = {};
+    let seciliUrun = null;
+
+    /* ── Tarih + saat formatı ── */
+    function formatliTarihSaat(tarihStr) {
+        const simdi = new Date();
+        const gun  = String(simdi.getDate()).padStart(2, '0');
+        const ay   = String(simdi.getMonth() + 1).padStart(2, '0');
+        const yil  = simdi.getFullYear();
+        const tarih = `${gun}.${ay}.${yil}`;
+        return `📅 ${tarih} &nbsp;|&nbsp; 🕐 Son Güncelleme: ${tarihStr}`;
+    }
+
+    /* ── Fiyat çekme ── */
     function fiyatlariGetir() {
         fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if(!data || !data.urunler) return;
-            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + data.sonGuncelleme;
+            if (!data || !data.urunler) return;
+
+            document.getElementById('guncellemeZamani').innerHTML =
+                formatliTarihSaat(data.sonGuncelleme);
+
             const tbody = document.getElementById('fiyatTablosu');
-            let yeniTabloHTML = ""; 
+            let yeniTabloHTML = "";
+
             excelSirasi.forEach(item => {
                 let urun = data.urunler[item.id];
-                if (urun) {
-                    let alisFiyat = Number(urun.alis);
-                    let satisFiyat = Number(urun.satis);
-                    let farkYuzde = Number(urun.fark || 0);
-                    // 1. FARK SÜTUNU FORMATI VE RENGİ
-                    let ok = "- ";
-                    let farkRenk = "sabit";
-                    if (farkYuzde > 0) { ok = "↑ "; farkRenk = "artti"; }
-                    else if (farkYuzde < 0) { ok = "↓ "; farkRenk = "dustu"; }
-                    let formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    // 2. ANLIK YANIP SÖNME RENKLERİ
-                    let alisRenk = "sabit";
-                    let satisRenk = "sabit";
-                    if (anlikFiyatHafizasi[item.id]) {
-                        let eskiAlis = anlikFiyatHafizasi[item.id].alis;
-                        let eskiSatis = anlikFiyatHafizasi[item.id].satis;
-                        if (alisFiyat > eskiAlis) alisRenk = "artti";
-                        else if (alisFiyat < eskiAlis) alisRenk = "dustu";
-                        else alisRenk = anlikFiyatHafizasi[item.id].alisRenk;
-                        if (satisFiyat > eskiSatis) satisRenk = "artti";
-                        else if (satisFiyat < eskiSatis) satisRenk = "dustu";
-                        else satisRenk = anlikFiyatHafizasi[item.id].satisRenk;
-                    }
-                    anlikFiyatHafizasi[item.id] = {
-                        alis: alisFiyat,
-                        satis: satisFiyat,
-                        alisRenk: alisRenk,
-                        satisRenk: satisRenk
-                    };
-                    yeniTabloHTML += `<tr>
-                        <td class="name-col">${item.ad}</td>
-                        <td class="fiyat ${alisRenk}">${alisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                        <td class="fiyat ${satisRenk}">${satisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                        <td class="fark-col ${farkRenk}">${formatliFark}</td>
-                    </tr>`;
+                if (!urun) return;
+
+                let alisFiyat  = Number(urun.alis);
+                let satisFiyat = Number(urun.satis);
+                let farkYuzde  = Number(urun.fark || 0);
+
+                let ok = "- ", farkRenk = "sabit";
+                if (farkYuzde > 0) { ok = "↑ "; farkRenk = "artti"; }
+                else if (farkYuzde < 0) { ok = "↓ "; farkRenk = "dustu"; }
+
+                let formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                let alisRenk = "sabit", satisRenk = "sabit";
+                if (anlikFiyatHafizasi[item.id]) {
+                    let eskiAlis  = anlikFiyatHafizasi[item.id].alis;
+                    let eskiSatis = anlikFiyatHafizasi[item.id].satis;
+                    alisRenk  = alisFiyat > eskiAlis  ? "artti" : alisFiyat  < eskiAlis  ? "dustu" : anlikFiyatHafizasi[item.id].alisRenk;
+                    satisRenk = satisFiyat > eskiSatis ? "artti" : satisFiyat < eskiSatis ? "dustu" : anlikFiyatHafizasi[item.id].satisRenk;
                 }
+
+                anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat, alisRenk, satisRenk };
+
+                yeniTabloHTML += `<tr>
+                    <td class="name-col">${item.ad}</td>
+                    <td class="fiyat ${alisRenk}">${alisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="fiyat ${satisRenk}">${satisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="fark-col ${farkRenk}">${formatliFark}</td>
+                </tr>`;
             });
+
             tbody.innerHTML = yeniTabloHTML;
+            hesapMakinesiGuncelle();
         })
-        .catch(error => console.error("Hata:", error));
+        .catch(e => console.error("Hata:", e));
     }
+
+    /* ── Hesap makinesi buton fiyatlarını güncelle ── */
+    function hesapMakinesiGuncelle() {
+        const idler = {
+            'btn-fiyat-gram':   'gramaltin',
+            'btn-fiyat-has':    'hasaltin',
+            'btn-fiyat-22ayar': '22ayargram'
+        };
+        for (const [elId, urunId] of Object.entries(idler)) {
+            const el = document.getElementById(elId);
+            if (el && anlikFiyatHafizasi[urunId]) {
+                el.textContent = anlikFiyatHafizasi[urunId].satis.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₺";
+            }
+        }
+        /* Eğer seçili ürün varsa, input fiyatını da güncelle */
+        if (seciliUrun && anlikFiyatHafizasi[seciliUrun.id]) {
+            document.getElementById('inputFiyat').value =
+                anlikFiyatHafizasi[seciliUrun.id].satis.toFixed(2);
+        }
+    }
+
+    /* ── Hızlı seçim ── */
+    function hizliSec(urunId, urunAdi, btnEl) {
+        document.querySelectorAll('.hizli-btn').forEach(b => b.classList.remove('aktif'));
+        btnEl.classList.add('aktif');
+        seciliUrun = { id: urunId, ad: urunAdi };
+
+        if (anlikFiyatHafizasi[urunId]) {
+            document.getElementById('inputFiyat').value =
+                anlikFiyatHafizasi[urunId].satis.toFixed(2);
+        }
+        sonucTemizle();
+    }
+
+    /* ── Hesapla ── */
+    function hesapla(islem) {
+        const fiyat = parseFloat(document.getElementById('inputFiyat').value);
+        const deger  = parseFloat(document.getElementById('inputDeger').value);
+        const sonucEl = document.getElementById('sonucDeger');
+        const acikEl  = document.getElementById('sonucAciklama');
+
+        if (isNaN(fiyat) || fiyat <= 0) {
+            sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Lütfen geçerli bir birim fiyat girin.</span>';
+            acikEl.textContent = '';
+            return;
+        }
+        if (isNaN(deger) || deger <= 0) {
+            sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Lütfen miktar / tutar alanını doldurun.</span>';
+            acikEl.textContent = '';
+            return;
+        }
+
+        let sonuc, aciklama;
+
+        if (islem === 'carpim') {
+            sonuc = fiyat * deger;
+            document.getElementById('label-deger').textContent = 'Miktar (gram/adet)';
+            sonucEl.textContent = sonuc.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₺";
+            aciklama = `${fiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺  ×  ${deger.toLocaleString('tr-TR')} gram/adet`;
+        } else {
+            if (fiyat === 0) {
+                sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Sıfıra bölünemez.</span>';
+                acikEl.textContent = ''; return;
+            }
+            sonuc = deger / fiyat;
+            document.getElementById('label-deger').textContent = 'Tutar (₺)';
+            sonucEl.textContent = sonuc.toLocaleString('tr-TR', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " gram";
+            aciklama = `${deger.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺  ÷  ${fiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺`;
+        }
+        acikEl.textContent = aciklama;
+    }
+
+    /* ── Sonuç temizle (input değişince) ── */
+    function sonucTemizle() {
+        document.getElementById('sonucDeger').innerHTML =
+            '<span class="sonuc-bos">— hesaplamak için işlem seçin —</span>';
+        document.getElementById('sonucAciklama').textContent = '';
+    }
+
+    /* ── Tam temizle ── */
+    function temizle() {
+        document.getElementById('inputFiyat').value = '';
+        document.getElementById('inputDeger').value = '';
+        document.getElementById('label-deger').textContent = 'Miktar / Tutar';
+        document.querySelectorAll('.hizli-btn').forEach(b => b.classList.remove('aktif'));
+        seciliUrun = null;
+        sonucTemizle();
+    }
+
+    /* ── Enter ile hesapla ── */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter') hesapla('carpim');
+    });
+
     fiyatlariGetir();
     setInterval(fiyatlariGetir, 3000);
 </script>
+
 </body>
 </html>
