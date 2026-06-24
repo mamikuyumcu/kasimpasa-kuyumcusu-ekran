@@ -334,7 +334,7 @@
 <body>
 
     <div class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()">
+        <button class="menu-btn" onclick="window.toggleMenu()">
             <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -361,11 +361,11 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="menuModal" onclick="closeMenu(event)">
+    <div class="modal-overlay" id="menuModal" onclick="window.closeMenu(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <div class="modal-title">Menü</div>
-                <button class="menu-btn" onclick="toggleMenu()">
+                <button class="menu-btn" onclick="window.toggleMenu()">
                     <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -375,7 +375,7 @@
 
             <div class="setting-row">
                 <span>Renk Paketi</span>
-                <select class="form-control" id="themeSelect" onchange="changeTheme()" style="width: auto; padding: 6px 12px; font-size: 14px;">
+                <select class="form-control" id="themeSelect" onchange="window.changeTheme()" style="width: auto; padding: 6px 12px; font-size: 14px;">
                     <option value="dark">Karanlık</option>
                     <option value="light">Aydınlık</option>
                     <option value="classic">Klasik</option>
@@ -387,12 +387,12 @@
                 
                 <div class="form-group">
                     <label>Altın Seçin</label>
-                    <select class="form-control" id="calcUrun" onchange="hesaplaYeniden()"></select>
+                    <select class="form-control" id="calcUrun" onchange="window.hesaplaYeniden()"></select>
                 </div>
 
                 <div class="form-group">
                     <label>Fiyat Tipi</label>
-                    <select class="form-control" id="calcTip" onchange="hesaplaYeniden()">
+                    <select class="form-control" id="calcTip" onchange="window.hesaplaYeniden()">
                         <option value="alis">Alış Fiyatı</option>
                         <option value="satis">Satış Fiyatı</option>
                     </select>
@@ -400,172 +400,169 @@
 
                 <div class="form-group">
                     <label>Altın Miktarı (Adet/Gram)</label>
-                    <input type="number" step="any" class="form-control" id="calcMiktar" placeholder="Miktar yazın..." oninput="hesapla('miktar')">
+                    <input type="number" step="any" class="form-control" id="calcMiktar" placeholder="Miktar yazın..." oninput="window.hesapla('miktar')">
                 </div>
 
                 <div class="form-group">
                     <label>Toplam Fiyat (TL)</label>
-                    <input type="number" step="any" class="form-control" id="calcTutar" placeholder="Fiyat yazın..." oninput="hesapla('tutar')">
+                    <input type="number" step="any" class="form-control" id="calcTutar" placeholder="Fiyat yazın..." oninput="window.hesapla('tutar')">
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    const excelSirasi = [
-        { id: "hasaltin", ad: "Has Altın" },
-        { id: "gramaltin", ad: "Gram Altın" },
-        { id: "eskiceyrek", ad: "Eski Çeyrek" },
-        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
-        { id: "eskiyarim", ad: "Eski Yarım" },
-        { id: "yeniyarim", ad: "Yeni Yarım" },
-        { id: "eskitam", ad: "Eski Tam" },
-        { id: "yenitam", ad: "Yeni Tam" },
-        { id: "eskiata", ad: "Eski Ata" },
-        { id: "yeniata", ad: "Yeni Ata" },
-        { id: "22ayargram", ad: "22 Ayar Gram" },
-        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
-    ];
+    // Tüm script kodunu sayfa tam yüklendiğinde çalışacak şekilde sarmalıyoruz
+    document.addEventListener("DOMContentLoaded", function() {
 
-    let anlikFiyatHafizasi = {};
-    let isFirstLoad = true;
-    let lastEditedField = 'miktar';
-    window.latestUrunler = null;
+        const excelSirasi = [
+            { id: "hasaltin", ad: "Has Altın" },
+            { id: "gramaltin", ad: "Gram Altın" },
+            { id: "eskiceyrek", ad: "Eski Çeyrek" },
+            { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+            { id: "eskiyarim", ad: "Eski Yarım" },
+            { id: "yeniyarim", ad: "Yeni Yarım" },
+            { id: "eskitam", ad: "Eski Tam" },
+            { id: "yenitam", ad: "Yeni Tam" },
+            { id: "eskiata", ad: "Eski Ata" },
+            { id: "yeniata", ad: "Yeni Ata" },
+            { id: "22ayargram", ad: "22 Ayar Gram" },
+            { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+        ];
 
-    // Hesap Makinesi Seçeneklerini Doldurma
-    const calcUrunSelect = document.getElementById('calcUrun');
-    excelSirasi.forEach(item => {
-        let opt = document.createElement('option');
-        opt.value = item.id;
-        opt.innerText = item.ad;
-        calcUrunSelect.appendChild(opt);
-    });
+        let anlikFiyatHafizasi = {};
+        let isFirstLoad = true;
+        let lastEditedField = 'miktar';
+        window.latestUrunler = null;
 
-    function toggleMenu() {
-        document.getElementById('menuModal').classList.toggle('active');
-    }
-    function closeMenu(e) {
-        if(e.target === document.getElementById('menuModal')) toggleMenu();
-    }
+        // HTML elemanlarının düzgün yüklendiğinden emin oluyoruz
+        const calcUrunSelect = document.getElementById('calcUrun');
+        if (calcUrunSelect) {
+            excelSirasi.forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item.id;
+                opt.innerText = item.ad;
+                calcUrunSelect.appendChild(opt);
+            });
+        }
 
-    function changeTheme() {
-        const theme = document.getElementById('themeSelect').value;
-        document.documentElement.setAttribute('data-theme', theme);
-    }
+        // --- GLOBAL FONKSİYONLAR ---
+        // Bu yapı, fonksiyonların dışarıdan tıklamalara yanıt vermesini garanti eder
+        window.toggleMenu = function() {
+            const menuModal = document.getElementById('menuModal');
+            if(menuModal) menuModal.classList.toggle('active');
+        };
 
-    function formatFiyat(deger) {
-        return Number(deger).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
+        window.closeMenu = function(e) {
+            const menuModal = document.getElementById('menuModal');
+            if(menuModal && e.target === menuModal) window.toggleMenu();
+        };
 
-    // Yavaşlatılmış ve Renkleri Kalıcı Bırakan Slot Animasyonu
-    function triggerSlotAnimation(elementId, eskiDegerStr, yeniDegerStr, isIncrease) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
+        window.changeTheme = function() {
+            const themeSelect = document.getElementById('themeSelect');
+            if(themeSelect) {
+                document.documentElement.setAttribute('data-theme', themeSelect.value);
+            }
+        };
 
-        el.innerHTML = '';
-        const wrap = document.createElement('div');
-        const colorClass = isIncrease ? 'text-green' : 'text-red';
-        wrap.className = 'slot-wrap ' + colorClass;
+        function formatFiyat(deger) {
+            return Number(deger).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
 
-        const oldDiv = document.createElement('div');
-        oldDiv.className = 'slot-item';
-        oldDiv.innerText = eskiDegerStr;
+        // Yavaşlatılmış ve Renkleri Kalıcı Bırakan Slot Animasyonu
+        window.triggerSlotAnimation = function(elementId, eskiDegerStr, yeniDegerStr, isIncrease) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
 
-        const newDiv = document.createElement('div');
-        newDiv.className = 'slot-item';
-        newDiv.innerText = yeniDegerStr;
+            el.innerHTML = '';
+            const wrap = document.createElement('div');
+            const colorClass = isIncrease ? 'text-green' : 'text-red';
+            wrap.className = 'slot-wrap ' + colorClass;
 
-        // Geçiş süreleri yavaşlatıldı (0.8s)
-        oldDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
-        newDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
+            const oldDiv = document.createElement('div');
+            oldDiv.className = 'slot-item';
+            oldDiv.innerText = eskiDegerStr;
 
-        newDiv.style.transform = isIncrease ? 'translateY(100%)' : 'translateY(-100%)';
-        oldDiv.style.transform = 'translateY(0)';
-        newDiv.style.opacity = '0';
+            const newDiv = document.createElement('div');
+            newDiv.className = 'slot-item';
+            newDiv.innerText = yeniDegerStr;
 
-        wrap.appendChild(oldDiv);
-        wrap.appendChild(newDiv);
-        el.appendChild(wrap);
+            oldDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
+            newDiv.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s ease';
 
-        void wrap.offsetWidth;
+            newDiv.style.transform = isIncrease ? 'translateY(100%)' : 'translateY(-100%)';
+            oldDiv.style.transform = 'translateY(0)';
+            newDiv.style.opacity = '0';
 
-        newDiv.style.transform = 'translateY(0)';
-        newDiv.style.opacity = '1';
-        oldDiv.style.transform = isIncrease ? 'translateY(-100%)' : 'translateY(100%)';
-        oldDiv.style.opacity = '0';
+            wrap.appendChild(oldDiv);
+            wrap.appendChild(newDiv);
+            el.appendChild(wrap);
 
-        // Renk sınıfı temizlenmiyor; kalıcı olarak hücrede kalıyor
-        setTimeout(() => {
-            el.innerHTML = `<div class="slot-wrap ${colorClass}"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${yeniDegerStr}</div></div>`;
-        }, 850);
-    }
+            void wrap.offsetWidth; // Tarayıcıyı zorla yenile
 
-    function fiyatlariGetir() {
-        fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-        .then(response => response.json())
-        .then(data => {
-            if(!data || !data.urunler) return;
+            newDiv.style.transform = 'translateY(0)';
+            newDiv.style.opacity = '1';
+            oldDiv.style.transform = isIncrease ? 'translateY(-100%)' : 'translateY(100%)';
+            oldDiv.style.opacity = '0';
 
-            // Tarih ve Saat Bilgisi Ekleme
-            const bugun = new Date();
-            const gun = String(bugun.getDate()).padStart(2, '0');
-            const ay = String(bugun.getMonth() + 1).padStart(2, '0');
-            const yil = bugun.getFullYear();
-            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + `${gun}.${ay}.${yil} ` + data.sonGuncelleme;
-            
-            window.latestUrunler = data.urunler;
-            const tbody = document.getElementById('fiyatTablosu');
+            // Renk kalıcı olarak kalır
+            setTimeout(() => {
+                el.innerHTML = `<div class="slot-wrap ${colorClass}"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${yeniDegerStr}</div></div>`;
+            }, 850);
+        };
 
-            if (isFirstLoad) {
-                let initialHTML = "";
-                excelSirasi.forEach(item => {
-                    let urun = data.urunler[item.id];
-                    if (urun) {
-                        let alisFiyat = Number(urun.alis);
-                        let satisFiyat = Number(urun.satis);
-                        let farkYuzde = Number(urun.fark || 0);
+        // --- ANA VERİ ÇEKME İŞLEMİ ---
+        function fiyatlariGetir() {
+            fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
+            .then(response => {
+                if(!response.ok) throw new Error("Ağ Yanıtı Hatalı");
+                return response.json();
+            })
+            .then(data => {
+                if(!data || !data.urunler) return;
 
-                        let farkSembol = "-";
-                        let farkClass = "bg-gray";
-                        if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
-                        else if (farkYuzde < 0) { farkSembol = ""; farkClass = "bg-red"; }
+                const bugun = new Date();
+                const gun = String(bugun.getDate()).padStart(2, '0');
+                const ay = String(bugun.getMonth() + 1).padStart(2, '0');
+                const yil = bugun.getFullYear();
+                
+                const guncellemeDiv = document.getElementById('guncellemeZamani');
+                if(guncellemeDiv) {
+                    guncellemeDiv.innerText = "Son Güncelleme: " + `${gun}.${ay}.${yil} ` + (data.sonGuncelleme || "");
+                }
+                
+                window.latestUrunler = data.urunler;
+                const tbody = document.getElementById('fiyatTablosu');
+                if(!tbody) return;
 
-                        anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat, alisRenk: 'text-default', satisRenk: 'text-default' };
+                if (isFirstLoad) {
+                    let initialHTML = "";
+                    excelSirasi.forEach(item => {
+                        let urun = data.urunler[item.id];
+                        if (urun) {
+                            let alisFiyat = Number(urun.alis);
+                            let satisFiyat = Number(urun.satis);
+                            let farkYuzde = Number(urun.fark || 0);
 
-                        initialHTML += `
-                            <div class="list-row">
-                                <div class="item-name">${item.ad}</div>
-                                <div><div class="slot-cell" id="${item.id}-alis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(alisFiyat)}</div></div></div></div>
-                                <div><div class="slot-cell" id="${item.id}-satis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(satisFiyat)}</div></div></div></div>
-                                <div><span class="fark-badge ${farkClass}" id="${item.id}-fark">${farkSembol}%${Math.abs(farkYuzde).toFixed(2)}</span></div>
-                            </div>
-                        `;
-                    }
-                });
-                tbody.innerHTML = initialHTML;
-                isFirstLoad = false;
-            } else {
-                excelSirasi.forEach(item => {
-                    let urun = data.urunler[item.id];
-                    if (urun) {
-                        let yeniAlis = Number(urun.alis);
-                        let yeniSatis = Number(urun.satis);
-                        let eskiData = anlikFiyatHafizasi[item.id];
+                            let farkSembol = "-";
+                            let farkClass = "bg-gray";
+                            if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
+                            else if (farkYuzde < 0) { farkSembol = ""; farkClass = "bg-red"; }
 
-                        let mAlisRenk = eskiData.alisRenk;
-                        let mSatisRenk = eskiData.satisRenk;
+                            anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat, alisRenk: 'text-default', satisRenk: 'text-default' };
 
-                        if (yeniAlis !== eskiData.alis) {
-                            mAlisRenk = yeniAlis > eskiData.alis ? 'text-green' : 'text-red';
-                            triggerSlotAnimation(`${item.id}-alis`, formatFiyat(eskiData.alis), formatFiyat(yeniAlis), yeniAlis > eskiData.alis);
+                            initialHTML += `
+                                <div class="list-row">
+                                    <div class="item-name">${item.ad}</div>
+                                    <div><div class="slot-cell" id="${item.id}-alis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(alisFiyat)}</div></div></div></div>
+                                    <div><div class="slot-cell" id="${item.id}-satis"><div class="slot-wrap text-default"><div class="slot-item">${formatFiyat(satisFiyat)}</div></div></div></div>
+                                    <div><span class="fark-badge ${farkClass}" id="${item.id}-fark">${farkSembol}%${Math.abs(farkYuzde).toFixed(2)}</span></div>
+                                </div>
+                            `;
                         }
-                        if (yeniSatis !== eskiData.satis) {
-                            mSatisRenk = yeniSatis > eskiData.satis ? 'text-green' : 'text-red';
-                            triggerSlotAnimation(`${item.id}-satis`, formatFiyat(eskiData.satis), formatFiyat(yeniSatis), yeniSatis > eskiData.satis);
-                        }
-
-                        let farkYuzde = Number(urun.fark || 0);
-                        let farkSembol = "-";
-                        let farkClass = "bg-gray";
-                        if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
-                        else i
+                    });
+                    tbody.innerHTML = initialHTML;
+                    isFirstLoad = false;
+                } else {
+                    excelSirasi.forEach(item => {
+                        let urun = data
