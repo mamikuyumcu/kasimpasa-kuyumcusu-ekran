@@ -80,19 +80,29 @@
             transition: background 0.25s ease, color 0.25s ease;
         }
 
-        .top-bar {
+        .fixed-head {
             position: fixed;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            z-index: 60;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 138px;
+            z-index: 1000;
+            background: var(--bg);
+            padding: 14px 14px 10px;
+        }
+
+        .header-grid {
+            max-width: 620px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 56px minmax(0, 1fr) 56px;
+            align-items: start;
         }
 
         .menu-wrap {
             position: relative;
             width: max-content;
-            pointer-events: auto;
+            z-index: 1100;
         }
 
         .menu-button {
@@ -251,20 +261,16 @@
         }
 
         .site-header {
-            position: fixed;
-            top: 22px;
-            left: 70px;
-            right: 70px;
-            z-index: 40;
             text-align: center;
             pointer-events: none;
+            padding-top: 3px;
         }
 
         .site-header h2 {
             margin: 0;
             color: var(--accent);
-            font-size: 23px;
-            letter-spacing: 0.35px;
+            font-size: 22px;
+            letter-spacing: 0.25px;
             line-height: 1.16;
             font-weight: 950;
         }
@@ -279,7 +285,7 @@
         .container {
             max-width: 620px;
             margin: 0 auto;
-            padding-top: 125px;
+            padding-top: 138px;
         }
 
         .table-card {
@@ -396,17 +402,23 @@
                 padding: 10px;
             }
 
+            .fixed-head {
+                height: 152px;
+                padding: 18px 10px 10px;
+            }
+
+            .header-grid {
+                grid-template-columns: 54px minmax(0, 1fr) 54px;
+            }
+
             .site-header {
-                top: 72px;
-                left: 10px;
-                right: 10px;
-                text-align: center;
+                padding-top: 0;
             }
 
             .site-header h2 {
-                font-size: 20px;
+                font-size: 18px;
                 line-height: 1.18;
-                letter-spacing: 0.2px;
+                letter-spacing: 0.1px;
             }
 
             .site-header .time {
@@ -415,7 +427,7 @@
             }
 
             .container {
-                padding-top: 165px;
+                padding-top: 152px;
             }
 
             .popup {
@@ -445,68 +457,72 @@
 
 <body data-theme="koyu">
 
-<div class="top-bar">
-    <div class="menu-wrap">
-        <button class="menu-button" id="menuButton" aria-label="Menü">
-            <span class="menu-lines">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-        </button>
+<div class="fixed-head">
+    <div class="header-grid">
+        <div class="menu-wrap">
+            <button class="menu-button" id="menuButton" aria-label="Menü">
+                <span class="menu-lines">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </button>
 
-        <div class="popup" id="menuPopup">
-            <div class="popup-title">Tema</div>
+            <div class="popup" id="menuPopup">
+                <div class="popup-title">Tema</div>
 
-            <div class="theme-grid">
-                <button class="theme-btn active" data-theme-set="koyu">Koyu</button>
-                <button class="theme-btn" data-theme-set="acik">Açık</button>
-                <button class="theme-btn" data-theme-set="classic">Klasik</button>
-            </div>
-
-            <div class="quick-calc">
-                <div class="popup-title">Hızlı Hesap</div>
-
-                <div class="form-row">
-                    <label>Ürün</label>
-                    <select id="calcUrun"></select>
+                <div class="theme-grid">
+                    <button class="theme-btn active" data-theme-set="koyu">Koyu</button>
+                    <button class="theme-btn" data-theme-set="acik">Açık</button>
+                    <button class="theme-btn" data-theme-set="classic">Klasik</button>
                 </div>
 
-                <div class="form-row two">
-                    <div>
-                        <label>Fiyat Tipi</label>
-                        <select id="calcTip">
-                            <option value="alis">Alış</option>
-                            <option value="satis">Satış</option>
-                        </select>
+                <div class="quick-calc">
+                    <div class="popup-title">Hızlı Hesap</div>
+
+                    <div class="form-row">
+                        <label>Ürün</label>
+                        <select id="calcUrun"></select>
                     </div>
 
-                    <div>
-                        <label>İşlem</label>
-                        <select id="calcIslem">
-                            <option value="carp">Fiyat × Sayı</option>
-                            <option value="sayiBolFiyat">Sayı ÷ Fiyat</option>
-                        </select>
+                    <div class="form-row two">
+                        <div>
+                            <label>Fiyat Tipi</label>
+                            <select id="calcTip">
+                                <option value="alis">Alış</option>
+                                <option value="satis">Satış</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>İşlem</label>
+                            <select id="calcIslem">
+                                <option value="carp">Fiyat × Sayı</option>
+                                <option value="sayiBolFiyat">Sayı ÷ Fiyat</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <label>Sayı / Gram / Tutar</label>
-                    <input id="calcSayi" type="number" inputmode="decimal" placeholder="Örn: 10" step="0.01">
-                </div>
+                    <div class="form-row">
+                        <label>Sayı / Gram / Tutar</label>
+                        <input id="calcSayi" type="number" inputmode="decimal" placeholder="Örn: 10" step="0.01">
+                    </div>
 
-                <div class="calc-result">
-                    <small id="calcBase">Seçili fiyat: -</small>
-                    <strong id="calcSonuc">-</strong>
+                    <div class="calc-result">
+                        <small id="calcBase">Seçili fiyat: -</small>
+                        <strong id="calcSonuc">-</strong>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="site-header">
-    <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
-    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
+        <div class="site-header">
+            <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
+            <div class="time" id="guncellemeZamani">Yükleniyor...</div>
+        </div>
+
+        <div></div>
+    </div>
 </div>
 
 <div class="container">
