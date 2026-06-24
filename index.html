@@ -326,14 +326,9 @@
 
         .fiyat {
             text-align: right;
-            transition: color 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+            transition: color 0.25s ease, filter 0.25s ease;
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
-        }
-
-        .fiyat.slot-spin {
-            transform: translateY(-1px);
-            filter: brightness(1.2);
         }
 
         .fark-col {
@@ -341,6 +336,39 @@
             font-size: 14px;
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
+        }
+
+        .digit-fixed {
+            display: inline-block;
+            min-width: 0.62ch;
+            text-align: center;
+        }
+
+        .digit-slot {
+            display: inline-block;
+            min-width: 0.62ch;
+            text-align: center;
+            animation: digitPop 0.22s ease;
+        }
+
+        .digit-punc {
+            display: inline-block;
+            min-width: 0.32ch;
+            text-align: center;
+        }
+
+        @keyframes digitPop {
+            0% {
+                transform: translateY(-6px);
+                opacity: 0.35;
+                filter: blur(1px);
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+                filter: blur(0);
+            }
         }
 
         .artti {
@@ -369,24 +397,25 @@
             }
 
             .site-header {
-                top: 18px;
-                left: 62px;
-                right: 12px;
-                text-align: left;
+                top: 72px;
+                left: 10px;
+                right: 10px;
+                text-align: center;
             }
 
             .site-header h2 {
-                font-size: 17px;
+                font-size: 20px;
                 line-height: 1.18;
+                letter-spacing: 0.2px;
             }
 
             .site-header .time {
                 font-size: 11px;
-                margin-top: 6px;
+                margin-top: 7px;
             }
 
             .container {
-                padding-top: 112px;
+                padding-top: 165px;
             }
 
             .popup {
@@ -456,10 +485,7 @@
                         <label>İşlem</label>
                         <select id="calcIslem">
                             <option value="carp">Fiyat × Sayı</option>
-                            <option value="bol">Fiyat ÷ Sayı</option>
                             <option value="sayiBolFiyat">Sayı ÷ Fiyat</option>
-                            <option value="topla">Fiyat + Sayı</option>
-                            <option value="cikar">Fiyat - Sayı</option>
                         </select>
                     </div>
                 </div>
@@ -604,31 +630,61 @@
         element.classList.remove("artti", "dustu", "sabit");
         element.classList.add(renkClass);
 
-        if (!animasyonYap) {
-            element.textContent = paraFormatla(yeniFiyat);
+        const finalText = paraFormatla(yeniFiyat);
+        const eskiText = element.dataset.lastText || element.textContent.trim() || finalText;
+
+        if (!animasyonYap || eskiText === "-" || eskiText === finalText) {
+            element.textContent = finalText;
+            element.dataset.lastText = finalText;
             return;
         }
 
-        element.classList.add("slot-spin");
+        element.innerHTML = "";
 
-        const finalText = paraFormatla(yeniFiyat);
-        const baslangic = performance.now();
-        const sure = 620;
+        const maxLen = Math.max(eskiText.length, finalText.length);
+        const eskiPad = eskiText.padStart(maxLen, " ");
+        const yeniPad = finalText.padStart(maxLen, " ");
 
-        function animasyon(now) {
-            const ilerleme = Math.min((now - baslangic) / sure, 1);
+        for (let i = 0; i < maxLen; i++) {
+            const eskiKarakter = eskiPad[i];
+            const yeniKarakter = yeniPad[i];
 
-            if (ilerleme < 1) {
-                const oynayanSayi = yeniFiyat + ((Math.random() - 0.5) * yeniFiyat * 0.018);
-                element.textContent = paraFormatla(oynayanSayi);
-                requestAnimationFrame(animasyon);
+            const span = document.createElement("span");
+            const rakamMi = /\d/.test(yeniKarakter);
+            const degistiMi = eskiKarakter !== yeniKarakter;
+
+            if (rakamMi && degistiMi) {
+                span.className = "digit-slot";
+
+                const baslangic = performance.now();
+                const sure = 520;
+
+                function rakamAnimasyonu(now) {
+                    const ilerleme = Math.min((now - baslangic) / sure, 1);
+
+                    if (ilerleme < 1) {
+                        span.textContent = Math.floor(Math.random() * 10);
+                        requestAnimationFrame(rakamAnimasyonu);
+                    } else {
+                        span.textContent = yeniKarakter;
+                    }
+                }
+
+                requestAnimationFrame(rakamAnimasyonu);
             } else {
-                element.textContent = finalText;
-                element.classList.remove("slot-spin");
+                if (rakamMi) {
+                    span.className = "digit-fixed";
+                } else {
+                    span.className = "digit-punc";
+                }
+
+                span.textContent = yeniKarakter === " " ? "" : yeniKarakter;
             }
+
+            element.appendChild(span);
         }
 
-        requestAnimationFrame(animasyon);
+        element.dataset.lastText = finalText;
     }
 
     function fiyatlariGetir() {
@@ -739,20 +795,22 @@
 
         calcBase.textContent = `${urunAdi} ${tipYazisi}: ${paraFormatla(fiyat)} TL`;
 
-        if (!Number.isFinite(sayi) || sayi === 0) {
+        if (!Number.isFinite(sayi) || sayi === 0 || fiyat === 0) {
             calcSonuc.textContent = "-";
             return;
         }
 
         let sonuc = 0;
 
-        if (islem === "carp") sonuc = fiyat * sayi;
-        if (islem === "bol") sonuc = fiyat / sayi;
-        if (islem === "sayiBolFiyat") sonuc = sayi / fiyat;
-        if (islem === "topla") sonuc = fiyat + sayi;
-        if (islem === "cikar") sonuc = fiyat - sayi;
+        if (islem === "carp") {
+            sonuc = fiyat * sayi;
+            calcSonuc.textContent = paraFormatla(sonuc) + " TL";
+        }
 
-        calcSonuc.textContent = paraFormatla(sonuc);
+        if (islem === "sayiBolFiyat") {
+            sonuc = sayi / fiyat;
+            calcSonuc.textContent = paraFormatla(sonuc) + " gr";
+        }
     }
 
     menuButton.addEventListener("click", function(event) {
