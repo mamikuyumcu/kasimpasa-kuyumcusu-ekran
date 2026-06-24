@@ -1,492 +1,670 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kasımpaşa Kuyumcusu Canlı Fiyatlar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kasımpaşa Kuyumcusu</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+        /* iOS Sistem Renkleri ve Değişkenler */
+        :root {
+            --bg-color: #f2f2f7;
+            --surface-color: #ffffff;
+            --text-main: #000000;
+            --text-sec: #8e8e93;
+            --border-color: #c6c6c8;
+            --blue: #007aff;
+            --green: #34c759;
+            --red: #ff3b30;
+            --nav-bg: rgba(255, 255, 255, 0.85);
+            --modal-bg: rgba(242, 242, 247, 0.95);
+            --input-bg: #e3e3e8;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --surface-color: #1c1c1e;
+            --text-main: #ffffff;
+            --text-sec: #98989d;
+            --border-color: #38383a;
+            --blue: #0a84ff;
+            --green: #32d74b;
+            --red: #ff453a;
+            --nav-bg: rgba(28, 28, 30, 0.85);
+            --modal-bg: rgba(0, 0, 0, 0.95);
+            --input-bg: #2c2c2e;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 10px;
-        }
-        .container {
-            max-width: 550px;
-            margin: 0 auto;
-        }
-        h2 {
-            text-align: center;
-            color: #f1c40f;
-            margin-bottom: 5px;
-            font-size: 20px;
-            letter-spacing: 0.5px;
-            line-height: 1.4;
-        }
-        .time {
-            text-align: center;
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        th {
-            background-color: #2c3e50;
-            color: #f1c40f;
-            padding: 12px 10px;
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #2d2d2d;
-            font-size: 15px;
-            font-weight: bold;
-        }
-        .name-col { color: #e0e0e0; }
-        .fiyat { text-align: right; transition: color 0.3s ease; }
-        .fark-col { text-align: right; font-size: 14px; }
-
-        .artti { color: #2ecc71; }
-        .dustu { color: #ff4d4d; }
-        .sabit { color: #ffffff; }
-
-        /* ── Hesap Makinesi: sadece PC (≥768px) ── */
-        .hesap-makinesi {
-            display: none;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        @media (min-width: 768px) {
-            .hesap-makinesi {
-                display: block;
-                margin-top: 20px;
-                background-color: #1e1e1e;
-                border-radius: 10px;
-                padding: 18px 20px 20px;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-                border: 1px solid #2d2d2d;
-            }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding-bottom: 30px;
         }
 
-        .hesap-baslik {
-            color: #f1c40f;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 14px;
+        /* Navigasyon Bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 54px;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
-            gap: 7px;
-        }
-        .hesap-baslik::before {
-            content: "⚡";
-            font-size: 14px;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 0.5px solid var(--border-color);
+            z-index: 100;
         }
 
-        /* Hızlı seçim butonları */
-        .hizli-secim {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-        .hizli-btn {
-            flex: 1;
-            min-width: 100px;
-            background-color: #2c3e50;
-            color: #f1c40f;
-            border: 1px solid #f1c40f33;
-            border-radius: 6px;
-            padding: 8px 6px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
+        .navbar-title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.4px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            transition: background 0.2s, transform 0.1s;
-            white-space: nowrap;
         }
-        .hizli-btn:hover {
-            background-color: #34495e;
-            transform: translateY(-1px);
-        }
-        .hizli-btn.aktif {
-            background-color: #f1c40f;
-            color: #121212;
-            border-color: #f1c40f;
-        }
-        .hizli-btn .btn-fiyat {
+
+        .navbar-title span {
             display: block;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 400;
+            color: var(--text-sec);
             margin-top: 2px;
-            opacity: 0.8;
         }
 
-        /* Giriş alanları */
-        .hesap-row {
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--blue);
+            cursor: pointer;
             display: flex;
-            gap: 10px;
             align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        /* iOS Tablo / Liste Tasarımı */
+        .ios-list {
+            background-color: var(--surface-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 0.8fr;
+            padding: 12px 16px;
+            background-color: var(--bg-color);
+            border-bottom: 0.5px solid var(--border-color);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .list-header div:not(:first-child) {
+            text-align: right;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 0.8fr;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border-color);
+            align-items: center;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .list-row:last-child {
+            border-bottom: none;
+        }
+
+        .list-row div:not(:first-child) {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .item-name {
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        /* Slot Makinesi Animasyonu Css Sınıfları */
+        .slot-cell {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 20px;
+            width: 100%;
+        }
+
+        .slot-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slot-item {
+            position: absolute;
+            right: 0;
+            width: 100%;
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
+        }
+
+        /* Fiyat Renkleri */
+        .text-green { color: var(--green) !important; }
+        .text-red { color: var(--red) !important; }
+        .text-default { color: var(--text-main) !important; transition: color 1s ease; }
+
+        .fark-badge {
+            display: inline-block;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .bg-green { background-color: var(--green); }
+        .bg-red { background-color: var(--red); }
+        .bg-gray { background-color: var(--text-sec); }
+
+        /* Popup Menü & Hızlı Hesap */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 85%;
+            max-width: 350px;
+            background-color: var(--modal-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateX(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* iOS Switch (Toggle) */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 0.5px solid var(--border-color);
+            font-size: 16px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 31px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 27px; width: 27px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Hızlı Hesap Formu */
+        .calc-section {
+            margin-top: 30px;
+            background-color: var(--surface-color);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .calc-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
             margin-bottom: 12px;
         }
-        .hesap-input-wrap {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .hesap-label {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .hesap-input {
-            background-color: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 700;
-            padding: 9px 12px;
-            width: 100%;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .hesap-input:focus {
-            border-color: #f1c40f;
-        }
-        .hesap-input::placeholder {
-            color: #555;
-            font-weight: 400;
-        }
 
-        /* İşlem butonları */
-        .islem-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-        .islem-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 6px;
-            border: none;
-            font-size: 18px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .islem-btn:hover {
-            transform: translateY(-1px);
-        }
-        .islem-btn.carpim {
-            background-color: #27ae60;
-            color: #fff;
-        }
-        .islem-btn.carpim:hover { background-color: #2ecc71; }
-        .islem-btn.bolum {
-            background-color: #2980b9;
-            color: #fff;
-        }
-        .islem-btn.bolum:hover { background-color: #3498db; }
-        .islem-btn.temizle {
-            background-color: #333;
-            color: #aaa;
+        .form-group label {
+            display: block;
             font-size: 13px;
+            color: var(--text-sec);
+            margin-bottom: 6px;
         }
-        .islem-btn.temizle:hover { background-color: #444; color: #fff; }
 
-        /* Sonuç */
-        .sonuc-kutu {
-            background-color: #141414;
-            border: 1px solid #2d2d2d;
+        .form-control {
+            width: 100%;
+            padding: 12px;
             border-radius: 8px;
-            padding: 12px 16px;
-            min-height: 54px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .form-row {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            gap: 10px;
         }
-        .sonuc-etiket {
-            font-size: 10px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
+
+        .form-row .form-group { flex: 1; }
+
+        .btn-calc {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
         }
-        .sonuc-deger {
-            font-size: 22px;
-            font-weight: 900;
-            color: #f1c40f;
-        }
-        .sonuc-aciklama {
-            font-size: 11px;
-            color: #666;
-            margin-top: 2px;
-        }
-        .sonuc-bos {
-            font-size: 14px;
-            color: #444;
+
+        .btn-calc:active { opacity: 0.8; }
+
+        .calc-result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>KASIMPAŞA KUYUMCUSU<br>CANLI ALTIN FİYATLARI</h2>
-    <div class="time" id="guncellemeZamani">Yükleniyor...</div>
-
-    <table>
-        <thead>
-            <tr>
-                <th style="text-align: left;">ÜRÜN ADI</th>
-                <th style="text-align: right;">ALIŞ</th>
-                <th style="text-align: right;">SATIŞ</th>
-                <th style="text-align: right;">FARK</th>
-            </tr>
-        </thead>
-        <tbody id="fiyatTablosu"></tbody>
-    </table>
-
-    <!-- HESAP MAKİNESİ — sadece PC'de görünür -->
-    <div class="hesap-makinesi">
-        <div class="hesap-baslik">Hızlı Hesap Makinesi</div>
-
-        <!-- Hızlı Seçim -->
-        <div class="hizli-secim">
-            <button class="hizli-btn" onclick="hizliSec('gramaltin', 'Gram Altın', this)">
-                Gram Altın
-                <span class="btn-fiyat" id="btn-fiyat-gram">—</span>
-            </button>
-            <button class="hizli-btn" onclick="hizliSec('hasaltin', 'Has Altın', this)">
-                Has Altın
-                <span class="btn-fiyat" id="btn-fiyat-has">—</span>
-            </button>
-            <button class="hizli-btn" onclick="hizliSec('22ayargram', '22 Ayar Gram', this)">
-                22 Ayar
-                <span class="btn-fiyat" id="btn-fiyat-22ayar">—</span>
-            </button>
+    <div class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        <div class="navbar-title">
+            Kasımpaşa Kuyumcusu
+            <span id="guncellemeZamani">Bağlanıyor...</span>
         </div>
+        <div style="width: 24px;"></div> </div>
 
-        <!-- Giriş Alanları -->
-        <div class="hesap-row">
-            <div class="hesap-input-wrap">
-                <span class="hesap-label">Birim Fiyat (₺)</span>
-                <input class="hesap-input" id="inputFiyat" type="number" placeholder="Fiyat girin..." oninput="sonucTemizle()">
+    <div class="container">
+        <div class="ios-list">
+            <div class="list-header">
+                <div>Ürün</div>
+                <div>Alış</div>
+                <div>Satış</div>
+                <div>Fark</div>
             </div>
-            <div style="color:#555; font-size:20px; padding-top:18px;">×÷</div>
-            <div class="hesap-input-wrap">
-                <span class="hesap-label" id="label-deger">Miktar / Tutar</span>
-                <input class="hesap-input" id="inputDeger" type="number" placeholder="Değer girin..." oninput="sonucTemizle()">
-            </div>
-        </div>
-
-        <!-- İşlem Butonları -->
-        <div class="islem-row">
-            <button class="islem-btn carpim" onclick="hesapla('carpim')" title="Fiyat × Gram = Toplam TL">
-                × Çarp
-            </button>
-            <button class="islem-btn bolum" onclick="hesapla('bolum')" title="Tutar ÷ Fiyat = Gram">
-                ÷ Böl
-            </button>
-            <button class="islem-btn temizle" onclick="temizle()">✕ Temizle</button>
-        </div>
-
-        <!-- Sonuç -->
-        <div class="sonuc-kutu">
-            <div class="sonuc-etiket">Sonuç</div>
-            <div class="sonuc-deger" id="sonucDeger">
-                <span class="sonuc-bos">— hesaplamak için işlem seçin —</span>
-            </div>
-            <div class="sonuc-aciklama" id="sonucAciklama"></div>
+            <div id="fiyatTablosu">
+                </div>
         </div>
     </div>
-</div>
+
+    <div class="modal-overlay" id="menuModal" onclick="closeMenu(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">Menü</div>
+                <button class="menu-btn" onclick="toggleMenu()">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="setting-row">
+                <span>Karanlık Mod</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle" checked onchange="toggleTheme()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="calc-section">
+                <div class="calc-title">Hızlı Hesap</div>
+                
+                <div class="form-group">
+                    <label>İşlem Türü</label>
+                    <select class="form-control" id="calcIslemTuru" onchange="hesapla()">
+                        <option value="carp">Elimdeki Altın Ne Kadar Eder?</option>
+                        <option value="bol">Paramla Ne Kadar Altın Alırım?</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ürün Seçin</label>
+                    <select class="form-control" id="calcUrun" onchange="hesapla()"></select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Yön</label>
+                        <select class="form-control" id="calcYon" onchange="hesapla()">
+                            <option value="alis">Bana Geliş (Satış)</option>
+                            <option value="satis">Benden Çıkış (Alış)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Miktar (Adet/TL)</label>
+                        <input type="number" class="form-control" id="calcMiktar" placeholder="Örn: 10" oninput="hesapla()">
+                    </div>
+                </div>
+
+                <button class="btn-calc" onclick="hesapla()">Hesapla</button>
+
+                <div class="calc-result" id="calcSonuc">
+                    Sonuç: 0,00
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
     const excelSirasi = [
-        { id: "hasaltin",      ad: "Has Altın" },
-        { id: "gramaltin",     ad: "Gram Altın" },
-        { id: "eskiceyrek",    ad: "Eski Çeyrek" },
-        { id: "yeniceyrek",    ad: "Yeni Çeyrek" },
-        { id: "eskiyarim",     ad: "Eski Yarım" },
-        { id: "yeniyarim",     ad: "Yeni Yarım" },
-        { id: "eskitam",       ad: "Eski Tam" },
-        { id: "yenitam",       ad: "Yeni Tam" },
-        { id: "eskiata",       ad: "Eski Ata" },
-        { id: "yeniata",       ad: "Yeni Ata" },
-        { id: "22ayargram",    ad: "22 Ayar Gram" },
-        { id: "22ayarbilezik", ad: "22 Ayar Bilezik" }
+        { id: "hasaltin", ad: "Has Altın" },
+        { id: "gramaltin", ad: "Gram Altın" },
+        { id: "eskiceyrek", ad: "Eski Çeyrek" },
+        { id: "yeniceyrek", ad: "Yeni Çeyrek" },
+        { id: "eskiyarim", ad: "Eski Yarım" },
+        { id: "yeniyarim", ad: "Yeni Yarım" },
+        { id: "eskitam", ad: "Eski Tam" },
+        { id: "yenitam", ad: "Yeni Tam" },
+        { id: "eskiata", ad: "Eski Ata" },
+        { id: "yeniata", ad: "Yeni Ata" },
+        { id: "22ayargram", ad: "22 Ayar Gram" },
+        { id: "22ayarbilezik", ad: "22 Ayar Bilez." }
     ];
 
     let anlikFiyatHafizasi = {};
-    let seciliUrun = null;
+    let isFirstLoad = true;
+    window.latestUrunler = null;
 
-    /* ── Tarih + saat formatı ── */
-    function formatliTarihSaat(tarihStr) {
-        const simdi = new Date();
-        const gun  = String(simdi.getDate()).padStart(2, '0');
-        const ay   = String(simdi.getMonth() + 1).padStart(2, '0');
-        const yil  = simdi.getFullYear();
-        const tarih = `${gun}.${ay}.${yil}`;
-        return ` ${tarih} &nbsp;|&nbsp;  Son Güncelleme: ${tarihStr}`;
-    }
-
-    /* ── Fiyat çekme ── */
-    function fiyatlariGetir() {
-        fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
-        .then(r => r.json())
-        .then(data => {
-            if (!data || !data.urunler) return;
-
-            document.getElementById('guncellemeZamani').innerHTML =
-                formatliTarihSaat(data.sonGuncelleme);
-
-            const tbody = document.getElementById('fiyatTablosu');
-            let yeniTabloHTML = "";
-
-            excelSirasi.forEach(item => {
-                let urun = data.urunler[item.id];
-                if (!urun) return;
-
-                let alisFiyat  = Number(urun.alis);
-                let satisFiyat = Number(urun.satis);
-                let farkYuzde  = Number(urun.fark || 0);
-
-                let ok = "- ", farkRenk = "sabit";
-                if (farkYuzde > 0) { ok = "↑ "; farkRenk = "artti"; }
-                else if (farkYuzde < 0) { ok = "↓ "; farkRenk = "dustu"; }
-
-                let formatliFark = ok + "%" + Math.abs(farkYuzde).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-                let alisRenk = "sabit", satisRenk = "sabit";
-                if (anlikFiyatHafizasi[item.id]) {
-                    let eskiAlis  = anlikFiyatHafizasi[item.id].alis;
-                    let eskiSatis = anlikFiyatHafizasi[item.id].satis;
-                    alisRenk  = alisFiyat > eskiAlis  ? "artti" : alisFiyat  < eskiAlis  ? "dustu" : anlikFiyatHafizasi[item.id].alisRenk;
-                    satisRenk = satisFiyat > eskiSatis ? "artti" : satisFiyat < eskiSatis ? "dustu" : anlikFiyatHafizasi[item.id].satisRenk;
-                }
-
-                anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat, alisRenk, satisRenk };
-
-                yeniTabloHTML += `<tr>
-                    <td class="name-col">${item.ad}</td>
-                    <td class="fiyat ${alisRenk}">${alisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td class="fiyat ${satisRenk}">${satisFiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td class="fark-col ${farkRenk}">${formatliFark}</td>
-                </tr>`;
-            });
-
-            tbody.innerHTML = yeniTabloHTML;
-            hesapMakinesiGuncelle();
-        })
-        .catch(e => console.error("Hata:", e));
-    }
-
-    /* ── Hesap makinesi buton fiyatlarını güncelle ── */
-    function hesapMakinesiGuncelle() {
-        const idler = {
-            'btn-fiyat-gram':   'gramaltin',
-            'btn-fiyat-has':    'hasaltin',
-            'btn-fiyat-22ayar': '22ayargram'
-        };
-        for (const [elId, urunId] of Object.entries(idler)) {
-            const el = document.getElementById(elId);
-            if (el && anlikFiyatHafizasi[urunId]) {
-                el.textContent = anlikFiyatHafizasi[urunId].satis.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₺";
-            }
-        }
-        /* Eğer seçili ürün varsa, input fiyatını da güncelle */
-        if (seciliUrun && anlikFiyatHafizasi[seciliUrun.id]) {
-            document.getElementById('inputFiyat').value =
-                anlikFiyatHafizasi[seciliUrun.id].satis.toFixed(2);
-        }
-    }
-
-    /* ── Hızlı seçim ── */
-    function hizliSec(urunId, urunAdi, btnEl) {
-        document.querySelectorAll('.hizli-btn').forEach(b => b.classList.remove('aktif'));
-        btnEl.classList.add('aktif');
-        seciliUrun = { id: urunId, ad: urunAdi };
-
-        if (anlikFiyatHafizasi[urunId]) {
-            document.getElementById('inputFiyat').value =
-                anlikFiyatHafizasi[urunId].satis.toFixed(2);
-        }
-        sonucTemizle();
-    }
-
-    /* ── Hesapla ── */
-    function hesapla(islem) {
-        const fiyat = parseFloat(document.getElementById('inputFiyat').value);
-        const deger  = parseFloat(document.getElementById('inputDeger').value);
-        const sonucEl = document.getElementById('sonucDeger');
-        const acikEl  = document.getElementById('sonucAciklama');
-
-        if (isNaN(fiyat) || fiyat <= 0) {
-            sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Lütfen geçerli bir birim fiyat girin.</span>';
-            acikEl.textContent = '';
-            return;
-        }
-        if (isNaN(deger) || deger <= 0) {
-            sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Lütfen miktar / tutar alanını doldurun.</span>';
-            acikEl.textContent = '';
-            return;
-        }
-
-        let sonuc, aciklama;
-
-        if (islem === 'carpim') {
-            sonuc = fiyat * deger;
-            document.getElementById('label-deger').textContent = 'Miktar (gram/adet)';
-            sonucEl.textContent = sonuc.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " ₺";
-            aciklama = `${fiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺  ×  ${deger.toLocaleString('tr-TR')} gram/adet`;
-        } else {
-            if (fiyat === 0) {
-                sonucEl.innerHTML = '<span style="color:#e74c3c; font-size:14px;">⚠ Sıfıra bölünemez.</span>';
-                acikEl.textContent = ''; return;
-            }
-            sonuc = deger / fiyat;
-            document.getElementById('label-deger').textContent = 'Tutar (₺)';
-            sonucEl.textContent = sonuc.toLocaleString('tr-TR', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " gram";
-            aciklama = `${deger.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺  ÷  ${fiyat.toLocaleString('tr-TR', {minimumFractionDigits: 2})} ₺`;
-        }
-        acikEl.textContent = aciklama;
-    }
-
-    /* ── Sonuç temizle (input değişince) ── */
-    function sonucTemizle() {
-        document.getElementById('sonucDeger').innerHTML =
-            '<span class="sonuc-bos">— hesaplamak için işlem seçin —</span>';
-        document.getElementById('sonucAciklama').textContent = '';
-    }
-
-    /* ── Tam temizle ── */
-    function temizle() {
-        document.getElementById('inputFiyat').value = '';
-        document.getElementById('inputDeger').value = '';
-        document.getElementById('label-deger').textContent = 'Miktar / Tutar';
-        document.querySelectorAll('.hizli-btn').forEach(b => b.classList.remove('aktif'));
-        seciliUrun = null;
-        sonucTemizle();
-    }
-
-    /* ── Enter ile hesapla ── */
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Enter') hesapla('carpim');
+    // Hesap Makinesi Ürün Listesini Doldur
+    const calcUrunSelect = document.getElementById('calcUrun');
+    excelSirasi.forEach(item => {
+        let opt = document.createElement('option');
+        opt.value = item.id;
+        opt.innerText = item.ad;
+        calcUrunSelect.appendChild(opt);
     });
 
+    // Menü Kontrolleri
+    function toggleMenu() {
+        document.getElementById('menuModal').classList.toggle('active');
+    }
+    function closeMenu(e) {
+        if(e.target === document.getElementById('menuModal')) toggleMenu();
+    }
+
+    // Tema Kontrolü
+    function toggleTheme() {
+        const isDark = document.getElementById('themeToggle').checked;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+
+    // Para Birimi Formatı
+    function formatFiyat(deger) {
+        return Number(deger).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // Slot Makinesi Efekti Fonksiyonu
+    function triggerSlotAnimation(elementId, eskiDegerStr, yeniDegerStr, isIncrease) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        el.innerHTML = '';
+        
+        const wrap = document.createElement('div');
+        wrap.className = 'slot-wrap text-default';
+
+        const oldDiv = document.createElement('div');
+        oldDiv.className = 'slot-item';
+        oldDiv.innerText = eskiDegerStr;
+
+        const newDiv = document.createElement('div');
+        newDiv.className = 'slot-item';
+        newDiv.innerText = yeniDegerStr;
+
+        // Renk sınıfı ata
+        wrap.classList.remove('text-default');
+        wrap.classList.add(isIncrease ? 'text-green' : 'text-red');
+
+        // Başlangıç Pozisyonları
+        newDiv.style.transform = isIncrease ? 'translateY(100%)' : 'translateY(-100%)';
+        oldDiv.style.transform = 'translateY(0)';
+        newDiv.style.opacity = '0';
+
+        wrap.appendChild(oldDiv);
+        wrap.appendChild(newDiv);
+        el.appendChild(wrap);
+
+        // Tarayıcıya render fırsatı ver
+        void wrap.offsetWidth;
+
+        // Hareketi başlat
+        newDiv.style.transform = 'translateY(0)';
+        newDiv.style.opacity = '1';
+        oldDiv.style.transform = isIncrease ? 'translateY(-100%)' : 'translateY(100%)';
+        oldDiv.style.opacity = '0';
+
+        // Animasyon bitince standart renge dön ve temizle
+        setTimeout(() => {
+            el.innerHTML = `<div class="slot-wrap text-default"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${yeniDegerStr}</div></div>`;
+        }, 800);
+    }
+
+    // Verileri Çek ve İşle
+    function fiyatlariGetir() {
+        fetch('https://kasimpasakuyumcusu-aa3cc-default-rtdb.firebaseio.com/fiyatlar.json')
+        .then(response => response.json())
+        .then(data => {
+            if(!data || !data.urunler) return;
+
+            document.getElementById('guncellemeZamani').innerText = "Son Güncelleme: " + data.sonGuncelleme;
+            window.latestUrunler = data.urunler; // Hesap makinesi için sakla
+
+            const tbody = document.getElementById('fiyatTablosu');
+
+            if (isFirstLoad) {
+                let initialHTML = "";
+                excelSirasi.forEach(item => {
+                    let urun = data.urunler[item.id];
+                    if (urun) {
+                        let alisFiyat = Number(urun.alis);
+                        let satisFiyat = Number(urun.satis);
+                        let farkYuzde = Number(urun.fark || 0);
+
+                        let farkSembol = "-";
+                        let farkClass = "bg-gray";
+                        if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
+                        else if (farkYuzde < 0) { farkSembol = ""; farkClass = "bg-red"; }
+
+                        let formatliFark = farkSembol + "%" + Math.abs(farkYuzde).toFixed(2);
+
+                        anlikFiyatHafizasi[item.id] = { alis: alisFiyat, satis: satisFiyat };
+
+                        initialHTML += `
+                            <div class="list-row">
+                                <div class="item-name">${item.ad}</div>
+                                <div><div class="slot-cell" id="${item.id}-alis"><div class="slot-wrap text-default"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${formatFiyat(alisFiyat)}</div></div></div></div>
+                                <div><div class="slot-cell" id="${item.id}-satis"><div class="slot-wrap text-default"><div class="slot-item" style="transform: translateY(0); opacity: 1;">${formatFiyat(satisFiyat)}</div></div></div></div>
+                                <div><span class="fark-badge ${farkClass}" id="${item.id}-fark">${formatliFark}</span></div>
+                            </div>
+                        `;
+                    }
+                });
+                tbody.innerHTML = initialHTML;
+                isFirstLoad = false;
+            } else {
+                excelSirasi.forEach(item => {
+                    let urun = data.urunler[item.id];
+                    if (urun) {
+                        let yeniAlis = Number(urun.alis);
+                        let yeniSatis = Number(urun.satis);
+                        let eskiData = anlikFiyatHafizasi[item.id];
+
+                        // Alış Fiyatı Değişimi
+                        if (yeniAlis !== eskiData.alis) {
+                            let isIncrease = yeniAlis > eskiData.alis;
+                            triggerSlotAnimation(`${item.id}-alis`, formatFiyat(eskiData.alis), formatFiyat(yeniAlis), isIncrease);
+                        }
+
+                        // Satış Fiyatı Değişimi
+                        if (yeniSatis !== eskiData.satis) {
+                            let isIncrease = yeniSatis > eskiData.satis;
+                            triggerSlotAnimation(`${item.id}-satis`, formatFiyat(eskiData.satis), formatFiyat(yeniSatis), isIncrease);
+                        }
+
+                        // Fark Güncellemesi
+                        let farkYuzde = Number(urun.fark || 0);
+                        let farkSembol = "-";
+                        let farkClass = "bg-gray";
+                        if (farkYuzde > 0) { farkSembol = "+"; farkClass = "bg-green"; }
+                        else if (farkYuzde < 0) { farkSembol = ""; farkClass = "bg-red"; }
+                        
+                        let farkEl = document.getElementById(`${item.id}-fark`);
+                        if(farkEl) {
+                            farkEl.innerText = farkSembol + "%" + Math.abs(farkYuzde).toFixed(2);
+                            farkEl.className = `fark-badge ${farkClass}`;
+                        }
+
+                        // Hafızayı Güncelle
+                        anlikFiyatHafizasi[item.id] = { alis: yeniAlis, satis: yeniSatis };
+                    }
+                });
+            }
+
+            hesapla(); // Veriler güncellenince, açıksa hesap makinesi sonucunu da tazele
+        })
+        .catch(error => console.error("Fiyat çekme hatası:", error));
+    }
+
+    // Hızlı Hesap İşlemi
+    function hesapla() {
+        if(!window.latestUrunler) return;
+        
+        const urunId = document.getElementById('calcUrun').value;
+        const islemTuru = document.getElementById('calcIslemTuru').value; 
+        const miktar = parseFloat(document.getElementById('calcMiktar').value);
+        const yon = document.getElementById('calcYon').value; 
+
+        if(isNaN(miktar) || miktar <= 0) {
+            document.getElementById('calcSonuc').innerText = "Sonuç: 0,00";
+            return;
+        }
+
+        const urun = window.latestUrunler[urunId];
+        // Kullanıcı kuyumcu olarak düşünülürse: 
+        // "Bana Geliş (Satış)" müşteri için Satış, kuyumcu için Alış anlamına gelebilir, ancak teknik olarak veritabanındaki satış ve alış hücrelerini baz alır.
+        const fiyat = yon === 'alis' ? Number(urun.satis) : Number(urun.alis);
+
+        let sonuc = 0;
+        let sonucMetin = "";
+
+        if(islemTuru === 'carp') {
+            sonuc = fiyat * miktar;
+            sonucMetin = formatFiyat(sonuc) + " TL";
+        } else {
+            sonuc = miktar / fiyat;
+            sonucMetin = sonuc.toLocaleString('tr-TR', {minimumFractionDigits: 4, maximumFractionDigits: 4}) + " Adet/Gr";
+        }
+
+        document.getElementById('calcSonuc').innerText = "Sonuç: " + sonucMetin;
+    }
+
+    // Başlatıcılar
     fiyatlariGetir();
     setInterval(fiyatlariGetir, 3000);
 </script>
